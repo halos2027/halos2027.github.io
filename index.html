@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HALOS 2027 — Frontiers in Galactic Haloes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Sans:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#060913;
+    --bg2:#0a0f1f;
+    --ink:#e9edf6;
+    --ink-dim:#9aa4bd;
+    --line:rgba(160,175,210,.14);
+    --dm:#9b8cff;
+    --star:#f0d6a0;
+    --cgm:#5fe0cf;
+    --dm-dim:rgba(155,140,255,.12);
+    --star-dim:rgba(240,214,160,.10);
+    --cgm-dim:rgba(95,224,207,.10);
+    --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Instrument Sans",system-ui,sans-serif;
+    font-size:17px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(95,224,207,.35)}
+  a{color:var(--cgm);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--cgm);outline-offset:3px;border-radius:2px}
+ 
+  .mono{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+ 
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    background:rgba(6,9,19,.55);border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .navmark{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;letter-spacing:.04em;font-size:1.05rem;color:var(--ink)}
+  .navmark em{font-style:normal;color:var(--cgm)}
+  nav ul{display:flex;gap:clamp(12px,2.4vw,30px);list-style:none}
+  nav ul a{color:var(--ink-dim);font-size:.85rem;letter-spacing:.06em;text-transform:uppercase}
+  nav ul a:hover{color:var(--ink);text-decoration:none}
+  @media(max-width:760px){nav ul{display:none}}
+ 
+  /* ---------- hero ---------- */
+  header{position:relative;height:100vh;min-height:640px;overflow:hidden}
+  #halo-canvas{position:fixed;inset:0;width:100%;height:100vh;display:block;cursor:grab;z-index:0}
+  #halo-canvas:active{cursor:grabbing}
+  .scrim{position:fixed;inset:0;background:var(--bg);opacity:0;pointer-events:none;z-index:1}
+  main,footer{position:relative;z-index:2}
+  .hero-copy{z-index:2}
+  .hero-veil{position:absolute;inset:0;pointer-events:none;z-index:1;
+    -webkit-mask-image:linear-gradient(to bottom, #000 78%, transparent 100%);
+    mask-image:linear-gradient(to bottom, #000 78%, transparent 100%);
+    background:
+      radial-gradient(ellipse at 50% 42%, transparent 30%, rgba(6,9,19,.55) 78%, rgba(6,9,19,.92) 100%),
+      linear-gradient(to bottom, rgba(6,9,19,.5), transparent 22%, transparent 62%, rgba(6,9,19,.96) 96%);
+  }
+  .hero-copy{position:absolute;left:0;right:0;bottom:0;padding:0 clamp(20px,4vw,48px) clamp(28px,4vh,52px);pointer-events:none}
+  .hero-inner{max-width:var(--max);margin:0 auto;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:26px}
+  .hero-copy *{pointer-events:auto}
+  .kicker{font-family:"JetBrains Mono",monospace;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:14px}
+  h1.wordmark{
+    font-family:"Bricolage Grotesque",sans-serif;
+    font-weight:750;font-size:clamp(3.2rem,9.5vw,7.2rem);
+    line-height:.95;letter-spacing:-.015em;display:flex;align-items:baseline;gap:.02em;
+  }
+  h1 .halo-o{display:inline-block;width:.86em;height:.86em;transform:translateY(.09em)}
+  .hero-sub{margin-top:16px;max-width:34em;color:var(--ink-dim);font-size:clamp(.98rem,1.4vw,1.12rem)}
+  .hero-sub b{color:var(--ink);font-weight:600}
+  .hero-meta{display:flex;flex-direction:column;gap:8px;align-items:flex-end;text-align:right}
+  .hero-meta .mono{font-size:.82rem;letter-spacing:.08em;color:var(--ink-dim)}
+  .hero-meta .mono b{color:var(--ink);font-weight:500}
+  @media(max-width:760px){.hero-meta{align-items:flex-start;text-align:left}}
+ 
+  /* layer chips */
+  .layers{position:absolute;top:76px;right:clamp(20px,4vw,48px);display:flex;flex-direction:column;gap:8px;z-index:5}
+  .layers span{font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:2px;text-align:right}
+  .chip{
+    display:flex;align-items:center;gap:9px;justify-content:flex-end;
+    background:rgba(10,15,31,.6);border:1px solid var(--line);border-radius:999px;
+    padding:7px 14px;color:var(--ink-dim);font-size:.82rem;letter-spacing:.03em;
+    cursor:pointer;font-family:inherit;transition:all .18s ease;backdrop-filter:blur(8px);
+  }
+  .chip i{width:8px;height:8px;border-radius:50%;flex:none}
+  .chip[data-l="dm"] i{background:var(--dm)}
+  .chip[data-l="star"] i{background:var(--star)}
+  .chip[data-l="cgm"] i{background:var(--cgm)}
+  .chip[data-l="all"] i{background:linear-gradient(135deg,var(--dm),var(--star),var(--cgm))}
+  .chip:hover{color:var(--ink);border-color:rgba(160,175,210,.35)}
+  .chip.on{color:var(--ink);border-color:currentColor}
+  .chip[data-l="dm"].on{color:var(--dm)}
+  .chip[data-l="star"].on{color:var(--star)}
+  .chip[data-l="cgm"].on{color:var(--cgm)}
+  @media(max-width:760px){.layers{top:auto;bottom:210px;flex-direction:row;left:20px;right:auto;flex-wrap:wrap}.layers span{display:none}}
+ 
+  .scroll-hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);color:var(--ink-dim);font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;animation:bob 2.6s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
+  @media(prefers-reduced-motion:reduce){.scroll-hint{animation:none}}
+ 
+  /* ---------- sections ---------- */
+  section{padding:clamp(72px,10vh,130px) 0;border-top:1px solid var(--line);position:relative}
+  main > section:first-of-type{border-top:none}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:.75rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:18px}
+  h2{font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(1.9rem,3.6vw,2.9rem);line-height:1.08;letter-spacing:-.01em;margin-bottom:22px;max-width:20em}
+  .lede{font-size:clamp(1.05rem,1.6vw,1.25rem);color:var(--ink-dim);max-width:44em}
+  .lede b{color:var(--ink);font-weight:600}
+ 
+  /* pillars */
+  .pillar{border-left:2px solid var(--line);padding-left:clamp(18px,3vw,36px);margin-top:64px;scroll-margin-top:90px}
+  .pillar.dm{border-color:var(--dm)}
+  .pillar.star{border-color:var(--star)}
+  .pillar.cgm{border-color:var(--cgm)}
+  .pillar .tag{font-family:"JetBrains Mono",monospace;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .pillar.dm .tag{color:var(--dm)}
+  .pillar.star .tag{color:var(--star)}
+  .pillar.cgm .tag{color:var(--cgm)}
+  .flag{border:1px solid currentColor;border-radius:999px;padding:2px 10px;font-size:.66rem}
+  .pillar h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(1.5rem,2.6vw,2.1rem);margin-bottom:12px}
+  .pillar p.desc{color:var(--ink-dim);max-width:46em;margin-bottom:22px}
+  .pillar p.desc b{color:var(--ink);font-weight:600}
+  .cols{display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(24px,4vw,56px)}
+  @media(max-width:860px){.cols{grid-template-columns:1fr}}
+  .topics{list-style:none;display:grid;gap:9px}
+  .topics li{padding-left:20px;position:relative;color:var(--ink-dim);font-size:.96rem}
+  .topics li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:1px;background:currentColor;opacity:.6}
+  .pillar.dm .topics li::before{background:var(--dm)}
+  .pillar.star .topics li::before{background:var(--star)}
+  .pillar.cgm .topics li::before{background:var(--cgm)}
+  .qbox h4{font-family:"JetBrains Mono",monospace;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:14px}
+  .qbox ul{list-style:none;display:grid;gap:12px}
+  .qbox li{font-family:"Bricolage Grotesque",sans-serif;font-weight:500;font-size:clamp(1.02rem,1.5vw,1.18rem);line-height:1.35}
+  .pillar.dm .qbox{background:var(--dm-dim)}
+  .pillar.star .qbox{background:var(--star-dim)}
+  .pillar.cgm .qbox{background:var(--cgm-dim)}
+  .qbox{border-radius:10px;padding:clamp(18px,2.6vw,28px)}
+ 
+  /* connected */
+  .weave{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:44px}
+  .weave .cell{border:1px solid var(--line);border-radius:12px;padding:22px;background:rgba(10,15,31,.5)}
+  .weave .cell .mono{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:10px}
+  .weave .cell p{color:var(--ink-dim);font-size:.94rem}
+  .weave .c1 .mono{color:var(--dm)} .weave .c2 .mono{color:var(--star)} .weave .c3 .mono{color:var(--cgm)} .weave .c4 .mono{background:linear-gradient(90deg,var(--dm),var(--star),var(--cgm));-webkit-background-clip:text;background-clip:text;color:transparent}
+ 
+  /* throughlines */
+  .rails{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:44px}
+  .rail{border-top:1px solid var(--line);padding-top:20px}
+  .rail h3{font-family:"Bricolage Grotesque",sans-serif;font-size:1.25rem;font-weight:650;margin-bottom:10px}
+  .rail p{color:var(--ink-dim);font-size:.95rem}
+  .rail .mono{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim)}
+ 
+  /* program */
+  .days{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:44px}
+  @media(max-width:960px){.days{grid-template-columns:1fr;gap:10px}}
+  .day{border:1px solid var(--line);border-radius:12px;padding:20px 18px;background:rgba(10,15,31,.5);display:flex;flex-direction:column;gap:8px;min-height:190px}
+  .day .dnum{font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-dim)}
+  .day h3{font-family:"Bricolage Grotesque",sans-serif;font-size:1.08rem;font-weight:650;line-height:1.25}
+  .day p{color:var(--ink-dim);font-size:.85rem;flex:1}
+  .day .bar{height:3px;border-radius:3px;margin-bottom:6px}
+  .day.dm .bar{background:var(--dm)} .day.star .bar{background:var(--star)}
+  .day.cgm .bar{background:var(--cgm)}
+  .day.syn .bar{background:linear-gradient(90deg,var(--dm),var(--star),var(--cgm))}
+  .fmt{margin-top:26px;color:var(--ink-dim);font-size:.92rem;max-width:52em}
+ 
+  /* venue */
+  .venue-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,4vw,60px);margin-top:40px;align-items:start}
+  @media(max-width:860px){.venue-grid{grid-template-columns:1fr}}
+  .vcard{border:1px solid var(--line);border-radius:12px;padding:26px;background:rgba(10,15,31,.5);margin-bottom:16px}
+  .vcard h3{font-family:"Bricolage Grotesque",sans-serif;font-size:1.2rem;font-weight:650;margin-bottom:6px}
+  .vcard .mono{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cgm)}
+  .vcard p{color:var(--ink-dim);font-size:.94rem;margin-top:8px}
+  .skyline{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(10,15,31,.5)}
+  .skyline svg{display:block;width:100%;height:auto}
+ 
+  /* dates */
+  .dates{margin-top:40px;display:grid;gap:0;border-top:1px solid var(--line)}
+  .dline{display:grid;grid-template-columns:170px 1fr auto;gap:18px;align-items:baseline;padding:16px 4px;border-bottom:1px solid var(--line)}
+  @media(max-width:640px){.dline{grid-template-columns:1fr;gap:2px}}
+  .dline .mono{font-size:.82rem;color:var(--cgm)}
+  .dline .what{font-size:1rem}
+  .dline .st{font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+  .note{margin-top:18px;color:var(--ink-dim);font-size:.85rem}
+ 
+  /* people */
+  .ppl-h{font-family:"Bricolage Grotesque",sans-serif;font-size:1.3rem;font-weight:650;margin:60px 0 6px}
+  .ppl-note{color:var(--ink-dim);font-size:.88rem;margin-bottom:22px}
+  .keynotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:14px}
+  .kcard{border:1px dashed var(--line);border-radius:12px;padding:22px;background:rgba(10,15,31,.5);display:flex;flex-direction:column;gap:8px}
+  .kcard.filled{border-style:solid}
+  .k-ava{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;border:1px dashed var(--ink-dim);position:relative;overflow:hidden;margin-bottom:4px}
+  .k-ava::before{content:"";width:10px;height:10px;border-radius:50%;background:currentColor;opacity:.85}
+  .k-ava img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+  .kcard.dm .k-ava{color:var(--dm);border-color:var(--dm)}
+  .kcard.star .k-ava{color:var(--star);border-color:var(--star)}
+  .kcard.cgm .k-ava{color:var(--cgm);border-color:var(--cgm)}
+  .kcard.syn .k-ava{color:var(--ink);border-color:var(--ink-dim)}
+  .k-tag{font-family:"JetBrains Mono",monospace;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase}
+  .kcard.dm .k-tag{color:var(--dm)} .kcard.star .k-tag{color:var(--star)}
+  .kcard.cgm .k-tag{color:var(--cgm)} .kcard.syn .k-tag{color:var(--ink-dim)}
+  .k-name{font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:1.12rem}
+  .k-affil{color:var(--ink-dim);font-size:.86rem}
+  .k-title{color:var(--ink-dim);font-style:italic;font-size:.9rem;border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
+  .invited{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .icard{border:1px dashed var(--line);border-radius:10px;padding:14px 16px;background:rgba(10,15,31,.4);display:flex;gap:12px;align-items:center}
+  .icard.filled{border-style:solid}
+  .i-ava{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;border:1px dashed var(--ink-dim);position:relative;overflow:hidden;color:var(--ink-dim)}
+  .i-ava::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.8}
+  .i-ava img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+  .i-name{font-weight:600;font-size:.94rem}
+  .i-affil{color:var(--ink-dim);font-size:.78rem}
+  .comms{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.comms{grid-template-columns:1fr}}
+  .ccard{border:1px solid var(--line);border-radius:12px;padding:26px;background:rgba(10,15,31,.5)}
+  .ccard h4{font-family:"Bricolage Grotesque",sans-serif;font-size:1.1rem;font-weight:650}
+  .ccard .mono{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--cgm)}
+  .ccard ul{list-style:none;display:grid;gap:9px;margin-top:16px}
+  .ccard li{color:var(--ink-dim);font-size:.94rem;display:flex;justify-content:space-between;gap:12px;border-bottom:1px dotted var(--line);padding-bottom:8px}
+  .ccard li b{color:var(--ink);font-weight:600}
+  .ccard li:last-child{border-bottom:none}
+  .role{font-family:"JetBrains Mono",monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);white-space:nowrap;align-self:center}
+ 
+  footer{border-top:1px solid var(--line);padding:56px 0 64px;color:var(--ink-dim);font-size:.9rem}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between;align-items:flex-start}
+  footer .fm{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;color:var(--ink);font-size:1.05rem;margin-bottom:8px}
+section.cta{padding:clamp(48px,7vh,84px) 0}
+.cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.cta-grid{grid-template-columns:1fr}}
+.cta-card{position:relative;border:1px solid var(--line);border-radius:14px;
+  padding:clamp(24px,3.4vw,40px);background:rgba(10,15,31,.55);overflow:hidden}
+.cta-card::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;
+  background:linear-gradient(90deg,var(--dm),var(--star),var(--cgm))}
+.cta-card h3{font-family:"Bricolage Grotesque",sans-serif;font-weight:650;
+  font-size:clamp(1.4rem,2.4vw,1.85rem);margin:8px 0 10px}
+.cta-card p{color:var(--ink-dim);font-size:.95rem;max-width:36em}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;margin-top:22px;
+  padding:13px 26px;border-radius:999px;font-weight:600;font-size:.95rem;transition:all .18s ease}
+.cta-btn.solid{background:var(--cgm);color:#06251f}
+.cta-btn.solid:hover{box-shadow:0 0 26px rgba(95,224,207,.45);transform:translateY(-1px);text-decoration:none}
+.cta-btn.ghost{border:1px solid var(--line);color:var(--ink)}
+.cta-btn.ghost:hover{border-color:var(--cgm);color:var(--cgm);transform:translateY(-1px);text-decoration:none}
+.cta-btn .arr{transition:transform .18s ease}
+.cta-btn:hover .arr{transform:translateX(3px)}
+.cta-fine{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:.68rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
+
+
+</style>
+</head>
+<body>
+ 
+<nav>
+  <div class="wrap">
+    <a class="navmark" href="#top">HAL<em>O</em>S 2027</a>
+    <ul>
+      <li><a href="#science">Science</a></li>
+      <li><a href="#questions">Questions</a></li>
+      <li><a href="#threads">Frontiers</a></li>
+      <li><a href="#program">Program</a></li>
+      <li><a href="#people">People</a></li>
+      <li><a href="#venue">Venue</a></li>
+      <li><a href="#dates">Dates</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header id="top">
+  <canvas id="halo-canvas" aria-label="Interactive 3D model of a galactic halo: dark matter envelope, stellar halo and streams, and circumgalactic gas around a central galaxy. Drag to rotate."></canvas>
+  <div class="hero-veil"></div>
+
+  <div class="layers" role="group" aria-label="Highlight halo components">
+    <span>drag to rotate · ctrl+scroll / pinch to zoom</span>
+    <button class="chip on" data-l="all"><i></i>Full system</button>
+    <button class="chip" data-l="dm"><i></i>Dark matter &amp; satellites</button>
+    <button class="chip" data-l="star"><i></i>Stellar halo</button>
+    <button class="chip" data-l="cgm"><i></i>Circumgalactic medium</button>
+  </div>
+
+  <div class="hero-copy">
+    <div class="hero-inner">
+      <div>
+        <div class="kicker">An international conference · Chicago · June 2027</div>
+        <h1 class="wordmark">HAL<svg class="halo-o" viewBox="0 0 100 100" aria-label="O"><g fill="none" stroke-linecap="round"><circle cx="50" cy="50" r="30" stroke="#5fe0cf" stroke-width="7"/><path d="M50 4 A46 46 0 0 1 96 50" stroke="#9b8cff" stroke-width="4" opacity=".8"/><path d="M50 96 A46 46 0 0 1 4 50" stroke="#9b8cff" stroke-width="4" opacity=".8"/><path d="M85 15 Q66 26 60 40" stroke="#5fe0cf" stroke-width="4" opacity=".9"/><path d="M15 85 Q34 74 40 60" stroke="#5fe0cf" stroke-width="4" opacity=".9"/><circle cx="50" cy="50" r="9" fill="#f0d6a0" stroke="none"/></g></svg>S 2027</h1>
+        <p class="hero-sub"><b>Frontiers in galactic haloes.</b> Dark matter, stars, and gas at the edges of galaxies. Four days diving into the dynamic and evolving environments within which galaxies live.</p>
+      </div>
+      <div class="hero-meta">
+        <div class="mono"><b>14–17 June 2027</b> (provisional)</div>
+        <div class="mono">SkAI Institute · 875 N Michigan Ave, 38th fl<br>or Northwestern University <b>· venue TBC</b></div>
+        <div class="mono">~100 participants · abstracts open late 2026</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">scroll</div>
+</header>
+
+<main>
+  <section id="science">
+    <div class="wrap">
+      <div class="eyebrow">Scientific Rationale</div>
+      <h2>The (nearly) invisible Halo</h2>
+      <p class="lede">
+      The "island universes" traced by galaxies' visible light belays a <b>complex, dynamic circumgalactic environment.</b> 
+      Despite the halo's importance in the <b>baryon cycle</b> and <b>galaxy evolution</b>, much of what exists in the halo is <b>nearly invisible.</b>
+      Now, <b>new instrumentation and technologies</b>, <b>state of the art, high resolution simulations</b>, and <b>novel, extensive surveys</b> are for the first time unlocking significant constraints on the nature of the halo.
+      This conferences focuses on bringing subfield experts together to <b>bridge observations, simulations, and statitical methods</b> at the frontier of this challenging but critical topic of study.
+
+        <!-- ===== CTA: register + abstracts (drop-in, safe to repeat) ===== -->
+<section class="cta">
+  <div class="wrap">
+    <div class="cta-grid">
+      <div class="cta-card">
+        <div class="eyebrow" style="margin-bottom:4px">Join us</div>
+        <h3>Register for HALOS 2027</h3>
+        <p>Five days, a hundred halo people, and a June week in Chicago. Registration covers all sessions, coffee in dangerous quantities, and the conference dinner.</p>
+        <a class="cta-btn solid" href="REGISTRATION_URL_HERE" target="_blank" rel="noopener">Register <span class="arr">→</span></a>
+        <div class="cta-fine">Opens Nov 2026 · Early rate through Apr 2027</div>
+      </div>
+      <div class="cta-card">
+        <div class="eyebrow" style="margin-bottom:4px">Contribute</div>
+        <h3>Submit an abstract</h3>
+        <p>Talks and posters across all three pillars — dark matter, stellar haloes, and the CGM — and especially the interfaces between them.</p>
+        <a class="cta-btn solid" href="ABSTRACT_URL_HERE" target="_blank" rel="noopener">Submit an abstract <span class="arr">→</span></a>
+        <div class="cta-fine">Deadline 13 Feb 2027 · Provisional</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+      </p>
+
+      <div class="pillar dm" id="p-dm">
+        <div class="tag">Pillar 01 · Day 1</div>
+        <h3>Dark matter haloes &amp; satellite populations</h3>
+        <p class="desc">
+          The dark matter suffusing halos remains frustratingly invisible, but the <b>baryonic tracers</b> of the halo (e.g., satellites, globular clusters, and stellar streams), while faint or challenging to identify, are increasingly being robustly characterized. 
+          These observations, along with new simulations, are allowing for new constraints on key properties of dark matter halos and satellite populations:
+        </p>
+        <div class="cols">
+          <ul class="topics">
+            <li>Halo shapes, orientations &amp; the stellar streams that measure them</li>
+            <li>Stream gaps and perturbations as probes of starless subhaloes</li>
+            <li>The subhalo mass function as a dark matter experiment (CDM / SIDM / WDM / fuzzy DM)</li>
+            <li>Satellite infall, ram-pressure stripping &amp; quenching timescales</li>
+            <li>Planes of satellites, group infall &amp; anisotropic accretion</li>
+            <li>Rubin-era dwarf discovery and completeness at the faint limit</li>
+          </ul>
+          <div class="qbox">
+            <h4>Open questions</h4>
+            <ul>
+              <li>How lumpy is dark matter below the mass where stars form? </li>
+              <li>Can stellar streams probe dark matter substructure?</li>
+              <li>What shapes do real haloes take — and does ΛCDM agree?</li>
+              <li>When, where, and how fast do satellites quench?</li>
+              <li>What drives the scatter in the stellar mass-halo mass relation at low stellar mass?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillar star" id="p-star">
+        <div class="tag">Pillar 02 · Day 2</div>
+        <h3>Stellar haloes &amp; the buildup of galaxies</h3>
+        <p class="desc">
+          Studies of the Milky Way have unveiled dozens of arcing streams of stars. These streams serve as probes of the potential and substructure, and archeological evidence of past accretion. 
+          Streams and debris in <b>other galaxies</b> will vastly improve these constraints and allow for holistic views we can't obtain from within the MW: but such measurements require <b>extreme low surface brightness</b> capabilities when targeting other galaxies.
+        </p>
+        <div class="cols">
+          <ul class="topics">
+            <li>Galactic archaeology: chemodynamical tagging of accretion events</li>
+            <li>In-situ vs. accreted haloes — and why the ratio varies so much</li>
+            <li>Deep LSB imaging of external haloes, from Dragonfly to Rubin to Roman</li>
+            <li>Tidal features as a census of minor mergers</li>
+            <li>Disrupted dwarfs, globular cluster streams &amp; the smallest building blocks</li>
+            <li>Connecting Milky Way detail to population statistics</li>
+          </ul>
+          <div class="qbox">
+            <h4>Open questions</h4>
+            <ul>
+              <li>Can a stellar halo yield its galaxy's full merger tree?</li>
+              <li>What drives the observed diversity in stellar haloes?</li>
+              <li>Where did the stars of the first accreted galaxies end up?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="pillar cgm" id="p-cgm">
+        <div class="tag">Pillar 03 · Days 3–4 <span class="flag">Flagship theme</span></div>
+        <h3>The circumgalactic medium</h3>
+        <p class="desc">
+          The circumgalactic medium (CGM) hosts as much as half of a galaxy's baryons, constantly evolving in a cycle of accretion from the cosmic web, heating and cooling, turbulence and mixing.
+          Gas in the CGM can precipitate down into galaxies to fuel star formation, and galactic feedback drives enriched gas back into the CGM to join the turbulent processes ongoing there.
+          Understanding the CGM and its influence on galaxy evolution is a <b>multiphase challenge</b>, with gas spanning a wide range in temperature and density, at surface brightnesses never before obtained for large samples.
+        </p>
+        <div class="cols">
+          <ul class="topics">
+            <li>The baryon cycle: accretion, winds, fountains &amp; recycling</li>
+            <li>Multiphase structure — cold cloud survival, precipitation &amp; thermal instability</li>
+            <li>The emission-mapping frontier: wide-field IFUs, narrowband &amp; LSB techniques</li>
+            <li>Absorption surveys &amp; tomography of the cool and warm-hot phases</li>
+            <li>Cosmic rays, magnetic fields &amp; non-thermal pressure support</li>
+            <li>Fast radio bursts as a baryon census of halo gas</li>
+            <li>The CGM–quenching connection across mass and environment</li>
+            <li>The resolution frontier: CGM-refinement simulations vs. cloud-scale physics</li>
+          </ul>
+          <div class="qbox">
+            <h4>Open questions</h4>
+            <ul>
+              <li>Where are the baryons — and in what phase?</li>
+              <li>How does gas actually get into galaxies?</li>
+              <li>What keeps cold clouds alive in hot haloes?</li>
+              <li>Do cosmic rays restructure galactic atmospheres?</li>
+              <li>How does the CGM evolve from high to low redshift?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <section id="questions">
+    <div class="wrap">
+      <div class="eyebrow">The interfaces</div>
+      <h2>No phase of the halo evolves in isolation.</h2>
+      <p class="lede">The most interesting problems live at the seams.</p>
+      <div class="weave">
+        <div class="cell c1"><span class="mono">DM ⟷ CGM</span><p>Satellites quench in the medium they fall through. The CGM's density and structure set stripping efficiencies; stripped gas, in turn, seeds the CGM with cool clouds.</p></div>
+        <div class="cell c2"><span class="mono">Stars ⟷ DM</span><p>Stellar streams are the sharpest rulers we have for halo shape and substructure — the stellar halo is a dark matter experiment in progress.</p></div>
+        <div class="cell c3"><span class="mono">Stars ⟷ CGM</span><p>The same accretion events that build stellar haloes deliver gas, angular momentum, and metals to the CGM. Debris and atmosphere share a history.</p></div>
+        <div class="cell c4"><span class="mono">All three</span><p>Anisotropic cosmic accretion sets the geometry of everything: satellite planes, stream orbits, and the filamentary feeding of halo gas.</p></div>
+      </div>
+    </div>
+  </section> -->
+
+  <section id="threads">
+    <div class="wrap">
+      <div class="eyebrow">The throughlines</div>
+      <h2>Bridging methods.</h2>
+      <p class="lede">Each pillar confronts its <b>simulations</b>, its <b>observational frontier</b>, and what <b>machine learning and AI</b> can accelerate</p>
+      <div class="rails">
+        <div class="rail"><span class="mono">Frontier · Simulations</span><h3>Resolving the halo</h3><p>From cosmological volumes to cloud-crushing boxes: CGM-refinement schemes, MHD and cosmic-ray physics, satellite stripping at survivable resolution, the CGM is being simulated with unprecedented resolution and new physics.</p></div>
+        <div class="rail"><span class="mono">Frontier · Observations</span><h3>The deep, wide sky</h3><p>Surveys from Rubin and Roman, deep emission line maps from KCWI, MUSE, and MOTHRA --- gas in the CGM is increasingly targetable in emission.</p></div>
+        <div class="rail"><span class="mono">Frontier · ML &amp; AI</span><h3>Inference at scale</h3><p>Simulation-based inference for streams and satellites, emulators bridging theory and survey volumes, foundation models for spectra and imaging. Machine learning methods and AI hold key accelerations for science with massive, multidimensional data.</p></div>
+      </div>
+    </div>
+  </section>
+
+   <section id="people">
+    <div class="wrap">
+      <div class="eyebrow">People</div>
+      <h2>Keynotes &amp; invited speakers </h2>
+ 
+      <h3 class="ppl-h">Keynote talks</h3>
+      <!-- TO FILL A KEYNOTE: keep the pillar class (dm / star / cgm / syn) for the color coding,
+           add class "filled" to switch the border from dashed to solid, replace the name /
+           affiliation / talk title, and (optionally) drop <img src="..." alt=""> inside .k-ava. -->
+      <div class="keynotes">
+        <div class="kcard dm filled">
+  <div class="k-ava" aria-hidden="true"><img src="./img/pieter.png" alt=""></div>
+  <div class="k-tag">Keynote · Day 1 · Dark matter</div>
+  <div class="k-name">Pieter van Dokkum</div>
+  <div class="k-affil">CIERA / Northwestern</div>
+  <div class="k-title">Talk title to be announced</div>
+</div>
+        <div class="kcard star">
+          <div class="k-ava" aria-hidden="true"></div>
+          <div class="k-tag">Keynote · Day 2 · Stellar haloes</div>
+          <div class="k-name">Speaker TBA</div>
+          <div class="k-affil">Institution</div>
+          <div class="k-title">Talk title to be announced</div>
+        </div>
+        <div class="kcard cgm">
+          <div class="k-ava" aria-hidden="true"></div>
+          <div class="k-tag">Keynote · Day 3 · CGM census</div>
+          <div class="k-name">Speaker TBA</div>
+          <div class="k-affil">Institution</div>
+          <div class="k-title">Talk title to be announced</div>
+        </div>
+        <div class="kcard cgm">
+          <div class="k-ava" aria-hidden="true"></div>
+          <div class="k-tag">Keynote · Day 4 · CGM physics</div>
+          <div class="k-name">Speaker TBA</div>
+          <div class="k-affil">Institution</div>
+          <div class="k-title">Talk title to be announced</div>
+        </div>
+      </div>
+ 
+      <h3 class="ppl-h">Invited speakers</h3>
+      <p class="ppl-note">Invited reviews frame each session. Duplicate cards as the list grows.</p>
+      <!-- TO FILL AN INVITED SPEAKER: add class "filled", replace name + affiliation,
+           optionally drop <img src="..." alt=""> inside .i-ava. Copy-paste a card to add more. -->
+      <div class="invited">
+        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
+        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
+        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
+        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
+        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
+        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
+        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
+        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
+      </div>
+ 
+      <h3 class="ppl-h">Committees</h3>
+      <!-- TO FILL: replace "Member TBA — Institution"; the .role tag on the right is optional
+           (chair / co-chair / etc). Add or remove <li> rows freely. -->
+      <div class="comms">
+        <div class="ccard">
+          <span class="mono">Scientific Organizing Committee</span>
+          <h4>SOC</h4>
+          <ul>
+            <li><span><b>Chloe Neufeld</b> — CIERA</span><span class="role">chair</span></li>
+            <li><span><b>Imad Pasha</b> — Dragonfly FRO</span><span class="role">co-chair</span></li>
+            <li><span><b>Juliette Hilhorst</b> — Yale University</span></li>
+            <li><span><b>Jonah Gannon</b> — Dunlap Institute</span></li>
+            <li><span><b>Member TBA</b> — Institution</span></li>
+            <li><span><b>Member TBA</b> — Institution</span></li>
+          </ul>
+        </div>
+        <div class="ccard">
+          <span class="mono">Local Organizing Committee</span>
+          <h4>LOC</h4>
+          <ul>
+            <li><span><b>Chloe Neufeld</b> — CIERA </span><span class="role">chair</span></li>
+            <li><span><b>Juliette Hilhorst</b> — Yale University</span></li>
+            <li><span><b>Imad Pasha</b> — Dragonfly FRO</span></li>
+            <li><span><b>Member TBA</b> — Institution</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <section id="program">
+    <div class="wrap">
+      <div class="eyebrow">Program at a glance</div>
+      <h2>Over four days, we will explore all galactic halos have to offer.</h2>
+      <p class="lede">Dark matter, halo stars and satellites, and the gas filling the virial radius.</p>
+      <div class="days">
+        <div class="day dm"><div class="bar"></div><div class="dnum">Day 1 · Mon</div><h3>Dark Matter haloes &amp; satellites</h3><p>Halo shapes, streams as substructure probes, satellite mass functions, infall &amp; quenching.</p></div>
+        <div class="day star"><div class="bar"></div><div class="dnum">Day 2 · Tue</div><h3>Stellar haloes &amp; buildup</h3><p>Archaeology, LSB imaging of external haloes, accretion histories, the in-situ/accreted divide.</p></div>
+        <div class="day cgm"><div class="bar"></div><div class="dnum">Day 3 · Wed</div><h3>CGM I — the census</h3><p>Baryon budgets, multiphase structure, absorption &amp; emission surveys, FRB dispersion measures.</p></div>
+        <div class="day cgm"><div class="bar"></div><div class="dnum">Day 4 · Thu</div><h3>CGM II — the physics</h3><p>Cold cloud survival, precipitation, cosmic rays &amp; magnetic fields, the resolution frontier, quenching.</p></div>
+        <div class="day syn"><div class="bar"></div><div class="dnum">Day 5 · Fri</div><h3>The connected halo</h3><p>Interfaces between all three pillars, ML frontiers, next-generation facilities, synthesis debate.</p></div>
+      </div>
+      <p class="fmt"><span class="mono" style="color:var(--cgm);font-size:.75rem;letter-spacing:.16em;">FORMAT&nbsp;&nbsp;</span> Invited reviews to frame each frontier, contributed talks, poster sessions with lightning intros, and generous unstructured discussion blocks — the meeting is sized (~100 people) so that conversations actually happen.</p>
+    </div>
+  </section> -->
+
+  <section id="venue">
+    <div class="wrap">
+      <div class="eyebrow">Venue &amp; travel</div>
+      <h2>Chicago, in June.</h2>
+      <div class="venue-grid">
+        <div>
+          <div class="vcard">
+            <span class="mono">Candidate venue · A</span>
+            <h3>SkAI Institute — 875 N Michigan Ave, 38th floor</h3>
+            <p>The NSF–Simons AI Institute for the Sky, high in the former John Hancock Center. Conference sessions with the city and Lake Michigan a thousand feet below — an apt altitude for halo science, and a short walk from the Magnificent Mile, hotels, and the lakefront.</p>
+          </div>
+          <div class="vcard">
+            <span class="mono">Candidate venue · B</span>
+            <h3>Northwestern University — Evanston campus</h3>
+            <p>CIERA's home campus on the Lake Michigan shore, 30 minutes north of downtown by train. Full university facilities, summer housing options, and a quieter lakeside setting.</p>
+          </div>
+          <p class="note">Final venue will be confirmed with registration. Both are served by O'Hare (ORD) and Midway (MDW); the CTA runs from both airports to downtown and Evanston.</p>
+        </div>
+        <div class="skyline" aria-hidden="true">
+          <svg viewBox="0 0 520 360">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#0a0f1f"/><stop offset="1" stop-color="#101a33"/>
+              </linearGradient>
+            </defs>
+            <rect width="520" height="360" fill="url(#sky)"/>
+            <circle cx="430" cy="70" r="26" fill="none" stroke="#5fe0cf" stroke-width="1.5" opacity=".7"/>
+            <circle cx="430" cy="70" r="40" fill="none" stroke="#9b8cff" stroke-width="1" opacity=".35" stroke-dasharray="3 5"/>
+            <circle cx="430" cy="70" r="6" fill="#f0d6a0"/>
+            <g fill="#0d1428" stroke="#25304d" stroke-width="1">
+              <rect x="40" y="200" width="42" height="160"/>
+              <rect x="95" y="170" width="34" height="190"/>
+              <rect x="140" y="220" width="50" height="140"/>
+              <rect x="205" y="150" width="38" height="210"/>
+              <rect x="330" y="185" width="44" height="175"/>
+              <rect x="388" y="215" width="30" height="145"/>
+              <rect x="430" y="175" width="46" height="185"/>
+            </g>
+            <!-- Hancock -->
+            <g>
+              <path d="M258 360 L268 120 L302 120 L312 360 Z" fill="#0d1428" stroke="#3b4a73" stroke-width="1.4"/>
+              <line x1="268" y1="120" x2="264" y2="92" stroke="#3b4a73" stroke-width="1.4"/>
+              <line x1="302" y1="120" x2="306" y2="92" stroke="#3b4a73" stroke-width="1.4"/>
+              <path d="M262 200 L308 165 M260 250 L310 210 M259 300 L311 258" stroke="#25304d" stroke-width="1"/>
+              <rect x="262" y="206" width="46" height="7" fill="#5fe0cf" opacity=".85"/>
+            </g>
+            <text x="262" y="196" font-family="JetBrains Mono,monospace" font-size="9" fill="#5fe0cf" letter-spacing="2">FL 38 · SKAI</text>
+            <g stroke="#f0d6a0" stroke-width="1" opacity=".5">
+              <circle cx="70" cy="60" r="1" fill="#f0d6a0"/><circle cx="150" cy="40" r="1" fill="#f0d6a0"/>
+              <circle cx="210" cy="80" r="1" fill="#f0d6a0"/><circle cx="360" cy="45" r="1" fill="#f0d6a0"/>
+              <circle cx="490" cy="120" r="1" fill="#f0d6a0"/><circle cx="30" cy="130" r="1" fill="#f0d6a0"/>
+            </g>
+            <text x="18" y="342" font-family="JetBrains Mono,monospace" font-size="9" fill="#4a5878" letter-spacing="2">CHICAGO · 41.9°N — DARK SKIES NOT INCLUDED</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dates">
+    <div class="wrap">
+      <div class="eyebrow">Key dates</div>
+      <h2>Mark the calendar, softly.</h2>
+      <div class="dates">
+        <div class="dline"><span class="mono">Nov 2026</span><span class="what">Registration &amp; abstract submission open</span><span class="st">Provisional</span></div>
+        <div class="dline"><span class="mono">13 Feb 2027</span><span class="what">Abstract deadline</span><span class="st">Provisional</span></div>
+        <div class="dline"><span class="mono">Apr 2027</span><span class="what">Program announced · early registration closes</span><span class="st">Provisional</span></div>
+        <div class="dline"><span class="mono">14 May 2027</span><span class="what">Registration closes</span><span class="st">Provisional</span></div>
+        <div class="dline"><span class="mono">14–18 Jun 2027</span><span class="what">HALOS 2027, Chicago</span><span class="st">Hold the week</span></div>
+      </div>
+      <p class="note">All dates provisional until registration opens. A limited number of travel grants for early-career researchers is anticipated — details with the first announcement.</p>
+    </div>
+  </section>
+  <!-- ===== CTA: register + abstracts (drop-in, safe to repeat) ===== -->
+<section class="cta">
+  <div class="wrap">
+    <div class="cta-grid">
+      <div class="cta-card">
+        <div class="eyebrow" style="margin-bottom:4px">Join us</div>
+        <h3>Register for HALOS 2027</h3>
+        <p>Five days, a hundred halo people, and a June week in Chicago. Registration covers all sessions, coffee in dangerous quantities, and the conference dinner.</p>
+        <a class="cta-btn solid" href="REGISTRATION_URL_HERE" target="_blank" rel="noopener">Register <span class="arr">→</span></a>
+        <div class="cta-fine">Opens Nov 2026 · Early rate through Apr 2027</div>
+      </div>
+      <div class="cta-card">
+        <div class="eyebrow" style="margin-bottom:4px">Contribute</div>
+        <h3>Submit an abstract</h3>
+        <p>Talks and posters across all three pillars — dark matter, stellar haloes, and the CGM — and especially the interfaces between them.</p>
+        <a class="cta-btn solid" href="ABSTRACT_URL_HERE" target="_blank" rel="noopener">Submit an abstract <span class="arr">→</span></a>
+        <div class="cta-fine">Deadline 13 Feb 2027 · Provisional</div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="fm">HAL<span style="color:var(--cgm)">O</span>S 2027</div>
+      <div>Frontiers in Galactic Haloes · Chicago · June 2027</div>
+      <div style="margin-top:6px" class="mono" style="font-size:.8rem">contact: halos2027@example.edu</div>
+    </div>
+    <div>
+      <div>Scientific &amp; Local Organizing Committees — TBA</div>
+      <div style="margin-top:6px">Code of conduct applies to all conference spaces.</div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* Hero: kinematic density-wave galaxy (adapted from the ALMANAC galaxy.js
+   renderer — field stars on the GPU, disk-confined gas patches, layered dust
+   ribbons, bulge + glows), embedded in conference halo layers: dark matter
+   envelope + satellites, stellar halo + stream, CGM + inflowing filaments. */
+(function(){
+  function initHero(){
+  const canvas = document.getElementById('halo-canvas');
+  if (!canvas) return;
+  const scrim = document.createElement('div');
+  scrim.className = 'scrim'; scrim.setAttribute('aria-hidden','true');
+  document.body.appendChild(scrim);
+  let kick = () => {};
+  if (!window.THREE) { canvas.style.display='none'; return; }
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobile = window.innerWidth < 700;
+  const SC = mobile ? 0.4 : 1;           // particle / mesh count scale
+  const TAU = Math.PI * 2;
+
+  // ---- RNG helpers (stand-ins for data.js) ----
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function gauss(rng){let u=0,v=0;while(u===0)u=rng();while(v===0)v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v);}
+
+  // ---- galaxy parameters (from data.js) ----
+  const GAL = {
+    v0: 8.0,          // flat rotation speed (scene units / time unit)
+    omegaP: 0.16,     // pattern speed (rad / time unit) — slower than Ω(R) inside corotation
+    pitchTan: Math.tan(15 * Math.PI / 180),
+    R0: 2.0,          // winding reference radius
+    ecc: 0.13,        // orbital "eccentricity" of the closed loops (lower → broader arms)
+    armJitter: 0.55,  // RMS spread (rad) of per-star density-wave phase → finite arm width
+    Rmax: 46,
+  };
+
+  // ---- renderer / scene / camera (z-up, like the source sim) ----
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 4000);
+  camera.up.set(0,0,1);
+
+  // =========================================================================
+  // Density-wave field stars (GPU)
+  // =========================================================================
+  const VERT = `
+uniform float uTime, uV0, uOmP, uTanPitch, uR0, uDim;
+attribute float aR, aTh0, aEcc, aZ, aSize;
+attribute vec3 aColor;
+varying vec3 vColor;
+varying float vFade;
+void main(){
+  float R = max(aR, 0.6);
+  float om = uV0 / R;
+  float th = aTh0 + om * uTime;
+  float phi0 = log(R / uR0) / uTanPitch;
+  float r = R * (1.0 - aEcc * cos(2.0 * (th - uOmP * uTime - phi0)));
+  vec3 pos = vec3(r * cos(th), r * sin(th), aZ);
+  vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = aSize * (230.0 / -mv.z);
+  vColor = aColor;
+  vFade = uDim;
+}`;
+  const FRAG = `
+varying vec3 vColor;
+varying float vFade;
+void main(){
+  vec2 c = gl_PointCoord - 0.5;
+  float d = length(c);
+  if (d > 0.5) discard;
+  float a = smoothstep(0.5, 0.0, d);
+  a *= a;
+  gl_FragColor = vec4(vColor, a * vFade);
+}`;
+
+  function starColor(rng){
+    const t = rng();
+    if (t < 0.55) return [1.0, 0.62, 0.42];
+    if (t < 0.78) return [1.0, 0.80, 0.56];
+    if (t < 0.92) return [1.0, 0.96, 0.86];
+    if (t < 0.985) return [0.92, 0.96, 1.0];
+    return [0.62, 0.75, 1.0];
+  }
+
+  const FIELD_DIM = 0.55;
+  function buildField(){
+    const N = Math.round(62000 * SC), rng = mulberry32(42);
+    const R = new Float32Array(N), Th = new Float32Array(N), Ec = new Float32Array(N);
+    const Z = new Float32Array(N), Sz = new Float32Array(N), Col = new Float32Array(N*3);
+    for (let i=0;i<N;i++){
+      let r = -10 * Math.log(1 - rng() * (1 - Math.exp(-GAL.Rmax/10)));
+      r = Math.max(1.2, r);
+      R[i] = r;
+      Th[i] = rng() * TAU;
+      const innerTaper = 1.0 - Math.exp(-Math.pow(r/7.0, 2.0));
+      Ec[i] = GAL.ecc * 0.65 * innerTaper * (0.7 + 0.6*rng()) * Math.exp(-r/60);
+      Z[i] = gauss(rng) * (0.35 + r*0.022);
+      Sz[i] = 0.7 + Math.pow(rng(),3) * 2.4;
+      const c = starColor(rng);
+      Col[i*3]=c[0]; Col[i*3+1]=c[1]; Col[i*3+2]=c[2];
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N*3),3));
+    g.setAttribute('aR', new THREE.BufferAttribute(R,1));
+    g.setAttribute('aTh0', new THREE.BufferAttribute(Th,1));
+    g.setAttribute('aEcc', new THREE.BufferAttribute(Ec,1));
+    g.setAttribute('aZ', new THREE.BufferAttribute(Z,1));
+    g.setAttribute('aSize', new THREE.BufferAttribute(Sz,1));
+    g.setAttribute('aColor', new THREE.BufferAttribute(Col,3));
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), GAL.Rmax + 10);
+    const m = new THREE.ShaderMaterial({
+      vertexShader: VERT, fragmentShader: FRAG,
+      uniforms: {
+        uTime:{value:0}, uV0:{value:GAL.v0}, uOmP:{value:GAL.omegaP},
+        uTanPitch:{value:GAL.pitchTan}, uR0:{value:GAL.R0}, uDim:{value:FIELD_DIM},
+      },
+      transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    });
+    return new THREE.Points(g, m);
+  }
+
+  // =========================================================================
+  // Procedural textures
+  // =========================================================================
+  function discTexture(inner, color){
+    const c = document.createElement('canvas'); c.width = c.height = 64;
+    const x = c.getContext('2d');
+    const g = x.createRadialGradient(32,32,0,32,32,30);
+    g.addColorStop(0,color); g.addColorStop(inner,color); g.addColorStop(1,'transparent');
+    x.fillStyle = g; x.beginPath(); x.arc(32,32,30,0,TAU); x.fill();
+    return new THREE.CanvasTexture(c);
+  }
+  function gaussianTexture(color=[255,220,170], sigma=0.32){
+    const size=128, c=document.createElement('canvas'); c.width=c.height=size;
+    const ctx=c.getContext('2d'), img=ctx.createImageData(size,size);
+    for(let y=0;y<size;y++) for(let x=0;x<size;x++){
+      const dx=(x+0.5-size/2)/(size/2), dy=(y+0.5-size/2)/(size/2);
+      const a=Math.exp(-(dx*dx+dy*dy)/(2*sigma*sigma));
+      const j=(y*size+x)*4;
+      img.data[j]=color[0]; img.data[j+1]=color[1]; img.data[j+2]=color[2];
+      img.data[j+3]=Math.floor(255*a);
+    }
+    ctx.putImageData(img,0,0);
+    const tex=new THREE.CanvasTexture(c); tex.needsUpdate=true; return tex;
+  }
+  function watercolorBlobTexture(seed=0){
+    const size=192, rng=mulberry32(9000+seed);
+    const c=document.createElement('canvas'); c.width=c.height=size;
+    const ctx=c.getContext('2d'); ctx.clearRect(0,0,size,size);
+    let g=ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size*0.50);
+    g.addColorStop(0,'rgba(255,255,255,0.18)'); g.addColorStop(0.35,'rgba(255,255,255,0.08)');
+    g.addColorStop(0.75,'rgba(255,255,255,0.025)'); g.addColorStop(1,'rgba(255,255,255,0.0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,size,size);
+    for(let i=0;i<52;i++){
+      const x=size*(0.5+(rng()-0.5)*0.72), y=size*(0.5+(rng()-0.5)*0.52), r=size*(0.06+rng()*0.18);
+      g=ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,`rgba(255,255,255,${0.08+rng()*0.12})`);
+      g.addColorStop(0.45,`rgba(255,255,255,${0.025+rng()*0.06})`);
+      g.addColorStop(1,'rgba(255,255,255,0.0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,TAU); ctx.fill();
+    }
+    ctx.globalCompositeOperation='destination-in';
+    const mask=ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size*0.54);
+    mask.addColorStop(0,'rgba(255,255,255,1)'); mask.addColorStop(0.70,'rgba(255,255,255,0.74)');
+    mask.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=mask; ctx.fillRect(0,0,size,size);
+    ctx.globalCompositeOperation='source-over';
+    const tex=new THREE.CanvasTexture(c); tex.needsUpdate=true; return tex;
+  }
+  function dustRibbonTexture(seed=0){
+    const w=512,h=96,rng=mulberry32(12000+seed);
+    const c=document.createElement('canvas'); c.width=w; c.height=h;
+    const ctx=c.getContext('2d'); ctx.clearRect(0,0,w,h);
+    let g=ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0.00,'rgba(255,255,255,0.0)'); g.addColorStop(0.30,'rgba(255,255,255,0.08)');
+    g.addColorStop(0.50,'rgba(255,255,255,0.18)'); g.addColorStop(0.70,'rgba(255,255,255,0.07)');
+    g.addColorStop(1.00,'rgba(255,255,255,0.0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+    for(let i=0;i<70;i++){
+      const x=rng()*w, y=h*(0.5+gauss(rng)*0.18);
+      const rx=w*(0.025+rng()*0.065), ry=h*(0.06+rng()*0.20);
+      const gr=ctx.createRadialGradient(x,y,0,x,y,Math.max(rx,ry));
+      gr.addColorStop(0,`rgba(255,255,255,${0.035+rng()*0.08})`);
+      gr.addColorStop(0.55,`rgba(255,255,255,${0.015+rng()*0.04})`);
+      gr.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.save(); ctx.translate(x,y); ctx.scale(rx/Math.max(rx,ry), ry/Math.max(rx,ry));
+      ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(0,0,Math.max(rx,ry),0,TAU); ctx.fill(); ctx.restore();
+    }
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    for(let k=0;k<9;k++){
+      ctx.beginPath();
+      let x=-20+rng()*60, y=h*(0.50+gauss(rng)*0.12);
+      ctx.moveTo(x,y);
+      for(let i=0;i<18;i++){
+        x+=w/17;
+        y+=gauss(rng)*h*0.055;
+        y+=Math.sin((i/17)*TAU*(1.0+rng()*0.5)+rng()*TAU)*h*0.015;
+        ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle=`rgba(255,255,255,${0.05+rng()*0.08})`;
+      ctx.lineWidth=1.0+rng()*3.0; ctx.stroke();
+    }
+    ctx.globalCompositeOperation='destination-in';
+    const endMask=ctx.createLinearGradient(0,0,w,0);
+    endMask.addColorStop(0.00,'rgba(255,255,255,0)'); endMask.addColorStop(0.08,'rgba(255,255,255,1)');
+    endMask.addColorStop(0.92,'rgba(255,255,255,1)'); endMask.addColorStop(1.00,'rgba(255,255,255,0)');
+    ctx.fillStyle=endMask; ctx.fillRect(0,0,w,h);
+    ctx.globalCompositeOperation='source-over';
+    const tex=new THREE.CanvasTexture(c); tex.needsUpdate=true; return tex;
+  }
+
+  // =========================================================================
+  // Spiral placement helpers
+  // =========================================================================
+  function sampleDiskRadius(rng, rMin=3.5, rMax=GAL.Rmax*0.82, scale=13.0){
+    const maxTerm = 1 - Math.exp(-(rMax-rMin)/scale);
+    return rMin - scale*Math.log(1 - rng()*maxTerm);
+  }
+  function armAngleAtRadius(R, armIndex=0){
+    return Math.log(R/GAL.R0)/GAL.pitchTan + armIndex*Math.PI;
+  }
+  function spiralTangentAngle(R, th){
+    const invTan = 1.0/GAL.pitchTan;
+    const dx = Math.cos(th) - Math.sin(th)*invTan;
+    const dy = Math.sin(th) + Math.cos(th)*invTan;
+    return Math.atan2(dy,dx);
+  }
+  function sampleArmWeightedPosition(rng, {armFraction=0.7,rMin=4.0,rMax=GAL.Rmax*0.80,armScatter=0.35,fieldBias=0.0,zScale=0.025}={}){
+    const R = sampleDiskRadius(rng, rMin, rMax);
+    const inArm = rng() < armFraction;
+    let th;
+    if (inArm){
+      const arm = rng()<0.5 ? 0 : 1;
+      th = armAngleAtRadius(R,arm) + gauss(rng)*armScatter;
+    } else {
+      th = rng()*TAU;
+      if (fieldBias>0){
+        const arm = rng()<0.5 ? 0 : 1;
+        const armTh = armAngleAtRadius(R,arm);
+        th = th*(1-fieldBias) + (armTh + gauss(rng)*armScatter*2.0)*fieldBias;
+      }
+    }
+    return {R, th, x:R*Math.cos(th), y:R*Math.sin(th), z:gauss(rng)*zScale, inArm};
+  }
+
+  // =========================================================================
+  // Bulge + glows
+  // =========================================================================
+  function buildBulgeGlow(size, opacity, color=[255,225,185], sigma=0.34){
+    const mat = new THREE.SpriteMaterial({
+      map: gaussianTexture(color,sigma), transparent:true, opacity,
+      depthWrite:false, depthTest:false, blending:THREE.AdditiveBlending,
+    });
+    const s = new THREE.Sprite(mat); s.scale.set(size,size,1); s.renderOrder = 1;
+    return s;
+  }
+  function buildBulge({count=18000,radius=14.0,opacity=0.22,size=0.28,seed=7}={}){
+    count = Math.round(count*SC);
+    const rng = mulberry32(seed);
+    const pos = new Float32Array(count*3), col = new Float32Array(count*3);
+    for(let i=0;i<count;i++){
+      const r = Math.pow(rng(),1.1)*radius, th = rng()*TAU, ph = Math.acos(2*rng()-1);
+      pos[i*3]=r*Math.sin(ph)*Math.cos(th);
+      pos[i*3+1]=r*Math.sin(ph)*Math.sin(th);
+      pos[i*3+2]=r*Math.cos(ph)*0.62;
+      const warm = 0.75+0.25*rng();
+      col[i*3]=1.0*warm; col[i*3+1]=0.84*warm; col[i*3+2]=0.62*warm;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    g.setAttribute('color', new THREE.BufferAttribute(col,3));
+    const m = new THREE.PointsMaterial({
+      size, map:discTexture(0.04,'rgba(255,220,170,0.95)'), vertexColors:true,
+      transparent:true, opacity, depthWrite:false, blending:THREE.AdditiveBlending,
+      sizeAttenuation:true, alphaTest:0.01,
+    });
+    return new THREE.Points(g,m);
+  }
+
+  // =========================================================================
+  // Gas: flat disk-confined patches
+  // =========================================================================
+  function buildGasClouds(){
+    const group = new THREE.Group(); group.renderOrder = 0.8;
+    const rng = mulberry32(101);
+    const plane = new THREE.PlaneGeometry(1,1);
+    const textures = [1,2,3,4,5].map(watercolorBlobTexture);
+    function addPatch(p,{opacity,color,tangentialSize,radialSize,tangentJitter=0.25}){
+      const tangent = p.inArm ? spiralTangentAngle(p.R,p.th) : p.th + Math.PI/2;
+      const mat = new THREE.MeshBasicMaterial({
+        map: textures[Math.floor(rng()*textures.length)],
+        color: new THREE.Color(color), transparent:true, opacity,
+        depthWrite:false, depthTest:true, blending:THREE.AdditiveBlending, side:THREE.DoubleSide,
+      });
+      const mesh = new THREE.Mesh(plane, mat);
+      mesh.position.set(p.x, p.y, p.z + 0.018);
+      mesh.rotation.z = tangent + gauss(rng)*tangentJitter;
+      mesh.scale.set(tangentialSize, radialSize, 1);
+      mesh.renderOrder = 0.8;
+      group.add(mesh);
+    }
+    for(let i=0;i<Math.round(260*SC);i++){
+      const p = sampleArmWeightedPosition(rng,{armFraction:0.78,rMin:4.5,rMax:GAL.Rmax*0.78,armScatter:0.38,fieldBias:0.12,zScale:0.018});
+      const color = rng()<0.58 ? '#64ffd8' : (rng()<0.80 ? '#7fd6ff' : '#9effc7');
+      const L = p.inArm ? 5.5+rng()*9.0 : 4.0+rng()*7.0;
+      const W = p.inArm ? 2.8+rng()*5.5 : 2.5+rng()*5.0;
+      addPatch(p,{opacity:(p.inArm?0.020:0.012)+rng()*(p.inArm?0.030:0.018),color,tangentialSize:L,radialSize:W,tangentJitter:p.inArm?0.45:0.85});
+    }
+    for(let i=0;i<Math.round(120*SC);i++){
+      const p = sampleArmWeightedPosition(rng,{armFraction:0.28,rMin:7.0,rMax:GAL.Rmax*0.92,armScatter:0.70,fieldBias:0.04,zScale:0.022});
+      addPatch(p,{opacity:0.006+rng()*0.014,color:rng()<0.55?'#58ffd2':'#6faeff',tangentialSize:9.0+rng()*18.0,radialSize:5.0+rng()*12.0,tangentJitter:1.2});
+    }
+    return group;
+  }
+
+  // =========================================================================
+  // Dust: curved spiral ribbons + wisps
+  // =========================================================================
+  function buildDustRibbonMesh({rng,arm=0,r0=6,r1=18,width=1.9,opacity=0.01,offset=-0.22,jitter=5.36,color='#160d09',texture,renderOrder=1.6,zCenter=1.58,zPuff=10.50,verticalWarp=3.18}){
+    const n=24, positions=[], uvs=[], indices=[], center=[];
+    const phase1=rng()*TAU, phase2=rng()*TAU;
+    for(let i=0;i<n;i++){
+      const t=i/(n-1), R=r0+(r1-r0)*t;
+      const waviness = Math.sin(t*TAU+phase1)*jitter*0.45 + Math.sin(t*TAU*2.5+phase2)*jitter*0.20;
+      const th = armAngleAtRadius(R,arm)+offset+waviness+gauss(rng)*jitter*0.25;
+      center.push({R,th,x:R*Math.cos(th),y:R*Math.sin(th),t});
+    }
+    for(let i=0;i<n;i++){
+      const p=center[i], pPrev=center[Math.max(0,i-1)], pNext=center[Math.min(n-1,i+1)];
+      const tx=pNext.x-pPrev.x, ty=pNext.y-pPrev.y;
+      const len=Math.max(1e-6,Math.hypot(tx,ty));
+      const nx=-ty/len, ny=tx/len;
+      const taper=Math.sin(Math.PI*p.t);
+      const w=width*(0.85+0.45*rng())*(0.50+0.50*taper);
+      const zSpine = zCenter + Math.sin(p.t*TAU+phase1)*verticalWarp + Math.sin(p.t*TAU*2.0+phase2)*verticalWarp*0.45 + gauss(rng)*zPuff;
+      positions.push(p.x+nx*w, p.y+ny*w, zSpine+gauss(rng)*zPuff*0.45);
+      positions.push(p.x-nx*w, p.y-ny*w, zSpine+gauss(rng)*zPuff*0.45);
+      uvs.push(p.t,1); uvs.push(p.t,0);
+    }
+    for(let i=0;i<n-1;i++){
+      const a=i*2,b=a+1,c=a+2,d=a+3;
+      indices.push(a,b,c); indices.push(b,d,c);
+    }
+    const geom=new THREE.BufferGeometry();
+    geom.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+    geom.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+    geom.setIndex(indices); geom.computeVertexNormals();
+    const mat=new THREE.MeshBasicMaterial({map:texture,color:new THREE.Color(color),transparent:true,opacity,depthWrite:false,depthTest:false,blending:THREE.NormalBlending,side:THREE.DoubleSide});
+    const mesh=new THREE.Mesh(geom,mat); mesh.renderOrder=renderOrder;
+    return mesh;
+  }
+  function buildDustWispMesh({rng,x,y,angle,length,width,opacity,color,texture,z=0.08,tilt=0.05}){
+    const plane=new THREE.PlaneGeometry(1,1);
+    const mat=new THREE.MeshBasicMaterial({map:texture,color:new THREE.Color(color),transparent:true,opacity,depthWrite:false,depthTest:false,blending:THREE.NormalBlending,side:THREE.DoubleSide});
+    const mesh=new THREE.Mesh(plane,mat);
+    mesh.position.set(x,y,z);
+    mesh.rotation.x=gauss(rng)*tilt; mesh.rotation.y=gauss(rng)*tilt;
+    mesh.rotation.z=angle+gauss(rng)*0.35;
+    mesh.scale.set(length,width,1); mesh.renderOrder=1.55;
+    return mesh;
+  }
+  function buildDustLanes(){
+    const group=new THREE.Group(); group.renderOrder=1.6;
+    const rng=mulberry32(202);
+    const textures=[1,2,3,4,5].map(dustRibbonTexture);
+    for(let i=0;i<Math.round(46*SC);i++){
+      const arm=rng()<0.5?0:1;
+      const r0=4.8+rng()*22.0, span=5.0+rng()*13.0;
+      const r1=Math.min(GAL.Rmax*0.82, r0+span);
+      const baseWidth=0.95+rng()*2.10, baseOpacity=0.16+rng()*0.20;
+      const baseOffset=-0.18+gauss(rng)*0.08, baseJitter=0.12+rng()*0.16;
+      const baseColor=rng()<0.65?'#130c09':'#24160f';
+      const texture=textures[Math.floor(rng()*textures.length)];
+      const layers=3+Math.floor(rng()*3);
+      for(let k=0;k<layers;k++){
+        group.add(buildDustRibbonMesh({rng,arm,r0,r1,
+          width:baseWidth*(1.85+rng()*0.55), opacity:baseOpacity*(0.12+rng()*0.18),
+          offset:baseOffset+gauss(rng)*0.045, jitter:baseJitter, color:baseColor, texture,
+          renderOrder:1.6, zCenter:gauss(rng)*0.22, zPuff:1.055+rng()*0.095, verticalWarp:0.145+rng()*0.090}));
+      }
+    }
+    for(let i=0;i<Math.round(90*SC);i++){
+      const p=sampleArmWeightedPosition(rng,{armFraction:0.72,rMin:5.0,rMax:GAL.Rmax*0.80,armScatter:0.38,fieldBias:0.04,zScale:0.020});
+      const tangent=p.inArm?spiralTangentAngle(p.R,p.th):p.th+Math.PI/2;
+      const baseLength=2.8+rng()*8.8, baseWidth=0.80+rng()*1.85;
+      const baseOpacity=(p.inArm?0.070:0.035)+rng()*(p.inArm?0.120:0.060);
+      const texture=textures[Math.floor(rng()*textures.length)];
+      const layers=p.inArm?3:2;
+      for(let k=0;k<layers;k++){
+        group.add(buildDustWispMesh({rng,
+          x:p.x+gauss(rng)*0.20, y:p.y+gauss(rng)*0.20,
+          angle:tangent+gauss(rng)*0.55,
+          length:baseLength*(0.85+rng()*0.55), width:baseWidth*(0.80+rng()*0.70),
+          opacity:baseOpacity*(0.45+rng()*0.30),
+          color:rng()<0.7?'#120b08':'#21150f', texture, z:gauss(rng)*0.24, tilt:0.07}));
+      }
+    }
+    for(let i=0;i<Math.round(55*SC);i++){
+      const p=sampleArmWeightedPosition(rng,{armFraction:0.30,rMin:6.0,rMax:GAL.Rmax*0.88,armScatter:0.70,fieldBias:0.03,zScale:0.030});
+      const texture=textures[Math.floor(rng()*textures.length)];
+      const layers=2+Math.floor(rng()*2);
+      for(let k=0;k<layers;k++){
+        group.add(buildDustWispMesh({rng,
+          x:p.x+gauss(rng)*0.35, y:p.y+gauss(rng)*0.35,
+          angle:p.th+Math.PI/2+gauss(rng)*0.85,
+          length:5.5+rng()*14.0, width:1.2+rng()*3.4,
+          opacity:0.020+rng()*0.050, color:'#17100d', texture, z:gauss(rng)*0.28, tilt:0.08}));
+      }
+    }
+    return group;
+  }
+
+  // =========================================================================
+  // Conference halo layers (z-up, scaled to the galaxy's units, Rmax = 30)
+  // =========================================================================
+  const R = Math.random;
+  function sphDir(){ const u=2*R()-1, t=TAU*R(), s=Math.sqrt(1-u*u); return [s*Math.cos(t), s*Math.sin(t), u]; }
+  const softDot = gaussianTexture([255,255,255], 0.30);   // fuzzy dot, like the sim's own sprites
+  function pts(n, fill, color, size, opacity, order=0.5){
+    n = Math.max(1, Math.round(n*SC));
+    const pos = new Float32Array(n*3);
+    for(let i=0;i<n;i++){ const p=fill(i); pos[3*i]=p[0]; pos[3*i+1]=p[1]; pos[3*i+2]=p[2]; }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const mat = new THREE.PointsMaterial({color, size, transparent:true, opacity,
+      map:softDot, alphaTest:0.01,
+      blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true});
+    const p = new THREE.Points(geo, mat); p.renderOrder = order;
+    return p;
+  }
+
+  const groups = { gal:new THREE.Group(), dm:new THREE.Group(), star:new THREE.Group(), cgm:new THREE.Group() };
+
+  // --- galaxy (his sim) ---
+  const fieldPts = buildField();
+  const gasGroup = buildGasClouds();
+  const dustGroup = buildDustLanes();
+  const bulgeGroup = new THREE.Group(); bulgeGroup.renderOrder = 1.0;
+  bulgeGroup.add(
+    buildBulgeGlow(78, 0.18, [255,208,160], 0.44),
+    buildBulgeGlow(50, 0.24, [255,224,185], 0.36),
+    buildBulgeGlow(28, 0.36, [255,240,215], 0.30),
+    buildBulgeGlow(12, 0.54, [255,250,235], 0.26),
+    buildBulge({count:18000, radius:16.0, opacity:0.20, size:0.28, seed:7}),
+  );
+  groups.gal.add(fieldPts, gasGroup, dustGroup, bulgeGroup);
+
+  // --- stellar halo: his diffuse halo points, reassigned to the stellar layer,
+  //     plus a warm outer envelope and a tidal stream arc ---
+  const haloPts = buildBulge({count:9000, radius:15.0, opacity:0.05, size:0.34, seed:11});
+  haloPts.scale.setScalar(5.5);
+  groups.star.add(haloPts);
+  groups.star.add(pts(1600, () => {
+    const d = sphDir(); const r = 30 + 62*Math.pow(R(), 1.9);
+    return [d[0]*r, d[1]*r, d[2]*r*0.78];
+  }, 0xf0d6a0, 1.3, 0.5));
+
+  // Tidal streams: a progenitor satellite at the head, trailing debris whose
+  // density, width, and brightness all taper away from the satellite.
+  function tidalStream({tilt, rr, a0, span, dir=1, n, color, size, opacity, satN}){
+    const g = new THREE.Group(); g.rotation.set(tilt[0], tilt[1], tilt[2]);
+    const N = Math.max(1, Math.round(n*SC));
+    const pos = new Float32Array(N*3), col = new Float32Array(N*3);
+    const c = new THREE.Color(color);
+    for(let i=0;i<N;i++){
+      const u = Math.pow(R(), 1.7);                 // 0 at satellite → 1 at trail end
+      const th = a0 - dir*u*span;
+      const s = 2.6*(1 - 0.7*u) + 0.5;              // width tapers with distance
+      const rad = rr + 5*Math.sin(th*2) + (R()-0.5)*2*s;
+      pos[3*i]   = rad*Math.cos(th) + (R()-0.5)*s;
+      pos[3*i+1] = rad*Math.sin(th) + (R()-0.5)*s;
+      pos[3*i+2] = (R()-0.5)*1.6*s;
+      const f = 0.30 + 0.70*(1-u);                  // brightness fades down the trail
+      col[3*i]=c.r*f; col[3*i+1]=c.g*f; col[3*i+2]=c.b*f;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+    const mat = new THREE.PointsMaterial({size, vertexColors:true, transparent:true, opacity,
+      map:softDot, alphaTest:0.01, blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true});
+    const cloud = new THREE.Points(geo, mat); cloud.renderOrder = 0.5;
+    g.add(cloud);
+    // progenitor satellite at the head of the trail
+    const sx = rr*Math.cos(a0), sy = rr*Math.sin(a0);
+    g.add(pts(satN, () => {
+      const dd = sphDir(); const q = 2.9*Math.pow(R(),0.8);
+      return [sx+dd[0]*q, sy+dd[1]*q, dd[2]*q];
+    }, 0xffedc8, 1.9, 0.95));
+    return g;
+  }
+  groups.star.add(tidalStream({tilt:[1.05,0.25,0.4],  rr:66, a0: 0.45*Math.PI, span: Math.PI*0.50, dir: 1, n:520, color:0xffe9bd, size:1.7, opacity:0.50, satN:130}));   // short ~90° trail
+  groups.star.add(tidalStream({tilt:[-0.5,0.9,0.15],  rr:52, a0:-0.25*Math.PI, span: Math.PI*1.11, dir:-1, n:780, color:0xf3ddb0, size:1.6, opacity:0.45, satN:110}));   // long ~200° trail
+
+  // --- dark matter: triaxial envelope + wireframe + satellite subhaloes ---
+  groups.dm.add(pts(6500, () => {
+    const d = sphDir(); const r = 175 * Math.pow(R(), 1.7) + 5;
+    return [d[0]*r, d[1]*r*0.86, d[2]*r*0.70];
+  }, 0x9b8cff, 1.5, 0.55));
+  const wire = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 20, 14),
+    new THREE.MeshBasicMaterial({color:0x9b8cff, wireframe:true, transparent:true, opacity:0.05})
+  );
+  wire.scale.set(175, 175*0.86, 175*0.70);
+  groups.dm.add(wire);
+  for(let s=0;s<9;s++){
+    const d = sphDir(); const rr = 60 + 95*R();
+    const cx=d[0]*rr, cy=d[1]*rr*0.86, cz=d[2]*rr*0.70;
+    groups.dm.add(pts(90, () => {
+      const dd = sphDir(); const q = 3.4*Math.pow(R(),0.8);
+      return [cx+dd[0]*q, cy+dd[1]*q, cz+dd[2]*q];
+    }, 0xc9befc, 1.8, 0.85));
+  }
+
+  // --- CGM: diffuse teal envelope + inflowing filaments, matching the gas palette ---
+  groups.cgm.add(pts(8500, () => {
+    const d = sphDir(); const r = 50 + 85*Math.pow(R(),1.25);
+    return [d[0]*r, d[1]*r*0.95, d[2]*r*0.82];
+  }, 0x5fe0cf, 1.7, 0.42));
+  const filaments = [];
+  const NFIL = 4, FP = Math.round(340*SC)+60;
+  for(let f=0; f<NFIL; f++){
+    const dir = sphDir();
+    const a = new THREE.Vector3(dir[0], dir[1], dir[2]*0.6).normalize().multiplyScalar(215);
+    const mid = a.clone().multiplyScalar(0.5).add(new THREE.Vector3((R()-0.5)*70,(R()-0.5)*70,(R()-0.5)*48));
+    const curve = new THREE.QuadraticBezierCurve3(a, mid, new THREE.Vector3((R()-0.5)*8,(R()-0.5)*8,(R()-0.5)*5));
+    const pos = new Float32Array(FP*3); const t = new Float32Array(FP);
+    for(let i=0;i<FP;i++){ t[i]=R(); }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const mat = new THREE.PointsMaterial({color:0x8ef0e2, size:1.9, transparent:true, opacity:0.45,
+      map:softDot, alphaTest:0.01,
+      blending:THREE.AdditiveBlending, depthWrite:false});
+    const cloud = new THREE.Points(geo, mat); cloud.renderOrder = 0.5;
+    groups.cgm.add(cloud);
+    filaments.push({curve, t, geo, jitter: Array.from({length:FP}, () => [(R()-0.5)*5.2,(R()-0.5)*5.2,(R()-0.5)*5.2])});
+  }
+  const fv = new THREE.Vector3();
+  function stepFilaments(dt){
+    for(const f of filaments){
+      const arr = f.geo.attributes.position.array;
+      for(let i=0;i<f.t.length;i++){
+        f.t[i] += dt*0.01*(0.6+0.8*Math.pow(f.t[i],1.0));
+        if (f.t[i] > 1) f.t[i] -= 1;
+        f.curve.getPoint(f.t[i], fv);
+        const j = f.jitter[i], sp = 1 - f.t[i]*0.7;
+        arr[3*i]=fv.x+j[0]*sp; arr[3*i+1]=fv.y+j[1]*sp; arr[3*i+2]=fv.z+j[2]*sp;
+      }
+      f.geo.attributes.position.needsUpdate = true;
+    }
+  }
+  stepFilaments(0.001);
+
+  // backdrop starfield
+  scene.add(pts(900, () => { const d=sphDir(); return [d[0]*1100, d[1]*1100, d[2]*1100]; }, 0xaab6d4, 2.2, 0.55, 0));
+
+  Object.values(groups).forEach(g => scene.add(g));
+
+  // =========================================================================
+  // Layer highlighting (chips)
+  // =========================================================================
+  const baseOp = new Map();
+  Object.values(groups).forEach(g => g.traverse(o => {
+    if (o.material && o.material.opacity !== undefined && !(o.material.uniforms && o.material.uniforms.uDim))
+      baseOp.set(o, o.material.opacity);
+  }));
+  let fieldFactor = 1;
+  function highlight(which){
+    const dimTo = 0.10;
+    for (const [key, g] of Object.entries(groups)){
+      const active = (which==='all') || key===which || key==='gal';
+      const f = active ? 1 : dimTo;
+      if (key === 'gal') fieldFactor = f;
+      g.traverse(o => {
+        if(!o.material) return;
+        if (o.material.uniforms && o.material.uniforms.uDim) return;   // field stars handled in animate
+        const b = baseOp.get(o);
+        if (b !== undefined) o.material.opacity = b*f;
+      });
+    }
+  }
+  document.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      highlight(btn.dataset.l);
+      kick();
+    });
+  });
+
+  // =========================================================================
+  // Custom orbit (rotate-only, damped; wheel left free so the page scrolls)
+  // =========================================================================
+  let az = -Math.PI/2 - 0.35, pol = 1.02, dist = mobile ? 300 : 150;
+  let vAz = 0, vPol = 0, dragging = false, px=0, py=0, idle=0;
+  let qs = 0;                              // smoothed scroll progress (0 top → 1 bottom)
+  function applyCamera(){
+    // scroll adds a slow zoom-in, rotation, and slight tilt on top of user control
+    const effAz  = az + qs * 1.8;
+    const effPol = Math.max(0.25, Math.min(1.50, pol - qs * 0.22));
+    const effDist = Math.max(70, dist * (1 - 0.52 * qs));
+    const sp = Math.sin(effPol);
+    camera.position.set(effDist*sp*Math.cos(effAz), effDist*sp*Math.sin(effAz), effDist*Math.cos(effPol));
+    camera.lookAt(0,0,0);
+  }
+  // --- drag to rotate + two-pointer pinch to zoom ---
+  const ptrs = new Map();
+  let pinchD = 0;
+  canvas.addEventListener('pointerdown', e => {
+    ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+    canvas.setPointerCapture(e.pointerId);
+    if (ptrs.size === 2){
+      const [p1, p2] = [...ptrs.values()];
+      pinchD = Math.hypot(p1[0]-p2[0], p1[1]-p2[1]);
+      dragging = false;
+    } else {
+      dragging = true; px=e.clientX; py=e.clientY;
+    }
+  });
+  function endPtr(e){ ptrs.delete(e.pointerId); if (ptrs.size < 2) pinchD = 0; if (!ptrs.size) dragging = false; }
+  window.addEventListener('pointerup', endPtr);
+  window.addEventListener('pointercancel', endPtr);
+  window.addEventListener('pointermove', e => {
+    if (!ptrs.has(e.pointerId)) { if(!dragging) return; }
+    if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+    if (ptrs.size === 2 && pinchD > 0){
+      const [p1, p2] = [...ptrs.values()];
+      const d = Math.hypot(p1[0]-p2[0], p1[1]-p2[1]);
+      if (d > 0){ dist = Math.max(90, Math.min(520, dist * pinchD / d)); pinchD = d; }
+      idle = 0; kick();
+      return;
+    }
+    if(!dragging) return;
+    const dx=e.clientX-px, dy=e.clientY-py;
+    vAz = -dx*0.0045; vPol = -dy*0.0045;
+    az += vAz; pol += vPol;
+    pol = Math.max(0.30, Math.min(1.45, pol));
+    px=e.clientX; py=e.clientY; idle=0;
+    kick();
+  });
+  // ctrl/⌘ + wheel zoom (macOS trackpad pinch arrives as ctrl+wheel);
+  // plain wheel is left alone so the page scrolls normally
+  canvas.addEventListener('wheel', e => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    e.preventDefault();
+    dist = Math.max(90, Math.min(520, dist * Math.exp(e.deltaY * 0.0012)));
+    idle = 0; kick();
+  }, {passive:false});
+
+  // =========================================================================
+  // Resize + main loop
+  // =========================================================================
+  function resize(){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', () => { resize(); kick(); });
+  resize();
+
+  let galTime = 0, last = performance.now();
+  function frame(now){
+    const dt = Math.min((now-last)/1000, 0.05); last = now; idle += dt;
+    galTime += dt * 0.22;
+
+    fieldPts.material.uniforms.uTime.value = galTime;
+    fieldPts.material.uniforms.uDim.value = FIELD_DIM * fieldFactor;
+
+    // gas/dust ride the density-wave pattern; bulge spins slowly on its own
+    const patternRot = GAL.omegaP * galTime;
+    gasGroup.rotation.z = patternRot;
+    dustGroup.rotation.z = patternRot;
+    bulgeGroup.rotation.z += dt * 0.030;
+
+    stepFilaments(dt);
+
+    // scroll-linked background motion + legibility scrim
+    const vh = window.innerHeight;
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
+    const q = reduced ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    qs += (q - qs) * Math.min(1, dt * 2.5);
+    scrim.style.opacity = (0.80 * Math.min(1, window.scrollY / (1.3 * vh))).toFixed(3);
+
+    // inertia + gentle idle drift
+    if (!dragging){
+      az += vAz; pol = Math.max(0.30, Math.min(1.45, pol + vPol));
+      vAz *= 0.94; vPol *= 0.94;
+      if (idle > 0.15) az += dt * 0.045;
+    }
+    applyCamera();
+    renderer.render(scene, camera);
+  }
+
+  if (reduced){
+    // static render; redraw only on interaction
+    let raf = null;
+    kick = () => { if(raf) return; raf = requestAnimationFrame(now => { raf=null; frame(now); }); };
+    galTime = 18;  // frozen mid-evolution so the arms read
+    window.addEventListener('scroll', () => kick(), {passive:true});
+    applyCamera(); frame(performance.now());
+  } else {
+    kick = () => {};
+    function loop(now){ frame(now); requestAnimationFrame(loop); }
+    requestAnimationFrame(loop);
+  }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHero);
+  } else {
+    initHero();
+  }
+})();
+</script>
+</body>
+</html>
