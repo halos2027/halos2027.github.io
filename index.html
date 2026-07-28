@@ -684,11 +684,11 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
   const mobile = window.innerWidth < 700;
   const SC = mobile ? 0.4 : 1;           // particle / mesh count scale
   const TAU = Math.PI * 2;
-
+ 
   // ---- RNG helpers (stand-ins for data.js) ----
   function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
   function gauss(rng){let u=0,v=0;while(u===0)u=rng();while(v===0)v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(TAU*v);}
-
+ 
   // ---- galaxy parameters (from data.js) ----
   const GAL = {
     v0: 8.0,          // flat rotation speed (scene units / time unit)
@@ -699,14 +699,14 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
     armJitter: 0.55,  // RMS spread (rad) of per-star density-wave phase → finite arm width
     Rmax: 46,
   };
-
+ 
   // ---- renderer / scene / camera (z-up, like the source sim) ----
   const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.5 : 2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 4000);
   camera.up.set(0,0,1);
-
+ 
   // =========================================================================
   // Density-wave field stars (GPU)
   // =========================================================================
@@ -740,7 +740,7 @@ void main(){
   a *= a;
   gl_FragColor = vec4(vColor, a * vFade);
 }`;
-
+ 
   function starColor(rng){
     const t = rng();
     if (t < 0.55) return [1.0, 0.62, 0.42];
@@ -749,7 +749,7 @@ void main(){
     if (t < 0.985) return [0.92, 0.96, 1.0];
     return [0.62, 0.75, 1.0];
   }
-
+ 
   const FIELD_DIM = 0.55;
   function buildField(){
     const N = Math.round(62000 * SC), rng = mulberry32(42);
@@ -786,7 +786,7 @@ void main(){
     });
     return new THREE.Points(g, m);
   }
-
+ 
   // =========================================================================
   // Procedural textures
   // =========================================================================
@@ -876,7 +876,7 @@ void main(){
     ctx.globalCompositeOperation='source-over';
     const tex=new THREE.CanvasTexture(c); tex.needsUpdate=true; return tex;
   }
-
+ 
   // =========================================================================
   // Spiral placement helpers
   // =========================================================================
@@ -910,7 +910,7 @@ void main(){
     }
     return {R, th, x:R*Math.cos(th), y:R*Math.sin(th), z:gauss(rng)*zScale, inArm};
   }
-
+ 
   // =========================================================================
   // Bulge + glows
   // =========================================================================
@@ -944,7 +944,7 @@ void main(){
     });
     return new THREE.Points(g,m);
   }
-
+ 
   // =========================================================================
   // Gas: flat disk-confined patches
   // =========================================================================
@@ -980,7 +980,7 @@ void main(){
     }
     return group;
   }
-
+ 
   // =========================================================================
   // Dust: curved spiral ribbons + wisps
   // =========================================================================
@@ -1077,7 +1077,7 @@ void main(){
     }
     return group;
   }
-
+ 
   // =========================================================================
   // Conference halo layers (z-up, scaled to the galaxy's units, Rmax = 30)
   // =========================================================================
@@ -1096,9 +1096,13 @@ void main(){
     const p = new THREE.Points(geo, mat); p.renderOrder = order;
     return p;
   }
-
+ 
   const groups = { gal:new THREE.Group(), dm:new THREE.Group(), star:new THREE.Group(), cgm:new THREE.Group() };
-
+  // Things on slow circular orbits: {g: group to spin about its local z, om: rad/s}.
+  // Angular speeds follow the sim's flat rotation curve, v0/R, scaled by the
+  // same 0.22 time factor the field stars use — inner orbiters visibly lap outer ones.
+  const orbiters = [];
+ 
   // --- galaxy (his sim) ---
   const fieldPts = buildField();
   const gasGroup = buildGasClouds();
@@ -1112,7 +1116,7 @@ void main(){
     buildBulge({count:18000, radius:16.0, opacity:0.20, size:0.28, seed:7}),
   );
   groups.gal.add(fieldPts, gasGroup, dustGroup, bulgeGroup);
-
+ 
   // --- stellar halo: his diffuse halo points, reassigned to the stellar layer,
   //     plus a warm outer envelope and a tidal stream arc ---
   const haloPts = buildBulge({count:9000, radius:15.0, opacity:0.05, size:0.34, seed:11});
@@ -1122,7 +1126,7 @@ void main(){
     const d = sphDir(); const r = 30 + 62*Math.pow(R(), 1.9);
     return [d[0]*r, d[1]*r, d[2]*r*0.78];
   }, 0xf0d6a0, 1.3, 0.5));
-
+ 
   // Tidal streams: a progenitor satellite at the head, trailing debris whose
   // density, width, and brightness all taper away from the satellite.
   function tidalStream({tilt, rr, a0, span, dir=1, n, color, size, opacity, satN}){
@@ -1148,17 +1152,21 @@ void main(){
       map:softDot, alphaTest:0.01, blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true});
     const cloud = new THREE.Points(geo, mat); cloud.renderOrder = 0.5;
     g.add(cloud);
-    // progenitor satellite at the head of the trail
-    const sx = rr*Math.cos(a0), sy = rr*Math.sin(a0);
+    // progenitor satellite at the head of the trail — same radial wobble as the trail
+    const r0 = rr + 5*Math.sin(a0*2);
+    const sx = r0*Math.cos(a0), sy = r0*Math.sin(a0);
     g.add(pts(satN, () => {
       const dd = sphDir(); const q = 2.9*Math.pow(R(),0.8);
       return [sx+dd[0]*q, sy+dd[1]*q, dd[2]*q];
     }, 0xffedc8, 1.9, 0.95));
     return g;
   }
-  groups.star.add(tidalStream({tilt:[1.05,0.25,0.4],  rr:66, a0: 0.45*Math.PI, span: Math.PI*0.50, dir: 1, n:520, color:0xffe9bd, size:1.7, opacity:0.50, satN:130}));   // short ~90° trail
-  groups.star.add(tidalStream({tilt:[-0.5,0.9,0.15],  rr:52, a0:-0.25*Math.PI, span: Math.PI*1.11, dir:-1, n:780, color:0xf3ddb0, size:1.6, opacity:0.45, satN:110}));   // long ~200° trail
-
+  const ts1 = tidalStream({tilt:[1.05,0.25,0.4],  rr:66, a0: 0.45*Math.PI, span: Math.PI*0.50, dir: 1, n:520, color:0xffe9bd, size:1.7, opacity:0.50, satN:130});   // short ~90° trail
+  const ts2 = tidalStream({tilt:[-0.5,0.9,0.15],  rr:52, a0:-0.25*Math.PI, span: Math.PI*1.11, dir:-1, n:780, color:0xf3ddb0, size:1.6, opacity:0.45, satN:110});   // long ~200° trail
+  groups.star.add(ts1, ts2);
+  orbiters.push({g:ts1, om:  0.22 * GAL.v0 / 66});   // positive: satellite leads, trail lags
+  orbiters.push({g:ts2, om: -0.22 * GAL.v0 / 52});
+ 
   // --- dark matter: triaxial envelope + wireframe + satellite subhaloes ---
   groups.dm.add(pts(6500, () => {
     const d = sphDir(); const r = 175 * Math.pow(R(), 1.7) + 5;
@@ -1170,44 +1178,63 @@ void main(){
   );
   wire.scale.set(175, 175*0.86, 175*0.70);
   groups.dm.add(wire);
+  const UP = new THREE.Vector3(0,0,1);
   for(let s=0;s<9;s++){
-    const d = sphDir(); const rr = 60 + 95*R();
-    const cx=d[0]*rr, cy=d[1]*rr*0.86, cz=d[2]*rr*0.70;
-    groups.dm.add(pts(90, () => {
+    const rr = 60 + 95*R();
+    // clump built at radius rr along the orbit frame's local x-axis
+    const clump = pts(90, () => {
       const dd = sphDir(); const q = 3.4*Math.pow(R(),0.8);
-      return [cx+dd[0]*q, cy+dd[1]*q, cz+dd[2]*q];
-    }, 0xc9befc, 1.8, 0.85));
+      return [rr+dd[0]*q, dd[1]*q, dd[2]*q];
+    }, 0xc9befc, 1.8, 0.85);
+    const orb = new THREE.Group();
+    const n = sphDir();
+    orb.quaternion.setFromUnitVectors(UP, new THREE.Vector3(n[0], n[1], n[2]));  // random orbital plane
+    orb.rotateZ(R()*TAU);                                                        // random starting phase
+    orb.add(clump);
+    groups.dm.add(orb);
+    orbiters.push({g:orb, om: (R()<0.5?1:-1) * 0.22 * GAL.v0 / rr});
   }
-
+ 
   // --- CGM: diffuse teal envelope + inflowing filaments, matching the gas palette ---
   groups.cgm.add(pts(8500, () => {
     const d = sphDir(); const r = 50 + 85*Math.pow(R(),1.25);
     return [d[0]*r, d[1]*r*0.95, d[2]*r*0.82];
   }, 0x5fe0cf, 1.7, 0.42));
+  // Inflow filaments as a two-scale medium: big faint overlapping "mist" blobs
+  // that blend into a smooth gas ribbon, plus a sparser population of brighter
+  // mid-size condensations (cool clouds) riding the same flow.
+  const gasTex = gaussianTexture([190, 255, 242], 0.72);   // very diffuse blob
   const filaments = [];
-  const NFIL = 4, FP = Math.round(340*SC)+60;
+  const NFIL = 4;
+  function addFilamentLayer(curve, {n, size, opacity, color, jitterAmp, tex}){
+    const N = Math.round(n*SC)+16;
+    const pos = new Float32Array(N*3); const t = new Float32Array(N);
+    for(let i=0;i<N;i++){ t[i]=R(); }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const mat = new THREE.PointsMaterial({color, size, transparent:true, opacity,
+      map:tex, alphaTest:0.003,
+      blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true});
+    const cloud = new THREE.Points(geo, mat); cloud.renderOrder = 0.5;
+    groups.cgm.add(cloud);
+    filaments.push({curve, t, geo,
+      jitter: Array.from({length:N}, () => [(R()-0.5)*jitterAmp,(R()-0.5)*jitterAmp,(R()-0.5)*jitterAmp])});
+  }
   for(let f=0; f<NFIL; f++){
     const dir = sphDir();
     const a = new THREE.Vector3(dir[0], dir[1], dir[2]*0.6).normalize().multiplyScalar(215);
     const mid = a.clone().multiplyScalar(0.5).add(new THREE.Vector3((R()-0.5)*70,(R()-0.5)*70,(R()-0.5)*48));
     const curve = new THREE.QuadraticBezierCurve3(a, mid, new THREE.Vector3((R()-0.5)*8,(R()-0.5)*8,(R()-0.5)*5));
-    const pos = new Float32Array(FP*3); const t = new Float32Array(FP);
-    for(let i=0;i<FP;i++){ t[i]=R(); }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-    const mat = new THREE.PointsMaterial({color:0x8ef0e2, size:1.9, transparent:true, opacity:0.45,
-      map:softDot, alphaTest:0.01,
-      blending:THREE.AdditiveBlending, depthWrite:false});
-    const cloud = new THREE.Points(geo, mat); cloud.renderOrder = 0.5;
-    groups.cgm.add(cloud);
-    filaments.push({curve, t, geo, jitter: Array.from({length:FP}, () => [(R()-0.5)*5.2,(R()-0.5)*5.2,(R()-0.5)*5.2])});
+    addFilamentLayer(curve, {n:150, size:10.0, opacity:0.020, color:0x59d8c6, jitterAmp:7.5, tex:gasTex});  // outer mist
+    addFilamentLayer(curve, {n:110, size:6.8, opacity:0.095, color:0x74e8d6, jitterAmp:5.4, tex:gasTex});  // inner mist
+    addFilamentLayer(curve, {n:44,  size:2.6, opacity:0.38,  color:0x9df3e6, jitterAmp:3.8, tex:softDot}); // cool clouds
   }
   const fv = new THREE.Vector3();
   function stepFilaments(dt){
     for(const f of filaments){
       const arr = f.geo.attributes.position.array;
       for(let i=0;i<f.t.length;i++){
-        f.t[i] += dt*0.01*(0.6+0.8*Math.pow(f.t[i],1.0));
+        f.t[i] += dt*0.015*(0.6+0.8*Math.pow(f.t[i],1.5));
         if (f.t[i] > 1) f.t[i] -= 1;
         f.curve.getPoint(f.t[i], fv);
         const j = f.jitter[i], sp = 1 - f.t[i]*0.7;
@@ -1217,12 +1244,12 @@ void main(){
     }
   }
   stepFilaments(0.001);
-
+ 
   // backdrop starfield
   scene.add(pts(900, () => { const d=sphDir(); return [d[0]*1100, d[1]*1100, d[2]*1100]; }, 0xaab6d4, 2.2, 0.55, 0));
-
+ 
   Object.values(groups).forEach(g => scene.add(g));
-
+ 
   // =========================================================================
   // Layer highlighting (chips)
   // =========================================================================
@@ -1254,11 +1281,11 @@ void main(){
       kick();
     });
   });
-
+ 
   // =========================================================================
   // Custom orbit (rotate-only, damped; wheel left free so the page scrolls)
   // =========================================================================
-  let az = -Math.PI/2 - 0.35, pol = 1.02, dist = mobile ? 300 : 150;
+  let az = -Math.PI/2 - 0.35, pol = 1.02, dist = mobile ? 300 : 250;
   let vAz = 0, vPol = 0, dragging = false, px=0, py=0, idle=0;
   let qs = 0;                              // smoothed scroll progress (0 top → 1 bottom)
   function applyCamera(){
@@ -1313,7 +1340,7 @@ void main(){
     dist = Math.max(90, Math.min(520, dist * Math.exp(e.deltaY * 0.0012)));
     idle = 0; kick();
   }, {passive:false});
-
+ 
   // =========================================================================
   // Resize + main loop
   // =========================================================================
@@ -1324,30 +1351,31 @@ void main(){
   }
   window.addEventListener('resize', () => { resize(); kick(); });
   resize();
-
+ 
   let galTime = 0, last = performance.now();
   function frame(now){
     const dt = Math.min((now-last)/1000, 0.05); last = now; idle += dt;
     galTime += dt * 0.22;
-
+ 
     fieldPts.material.uniforms.uTime.value = galTime;
     fieldPts.material.uniforms.uDim.value = FIELD_DIM * fieldFactor;
-
+ 
     // gas/dust ride the density-wave pattern; bulge spins slowly on its own
     const patternRot = GAL.omegaP * galTime;
     gasGroup.rotation.z = patternRot;
     dustGroup.rotation.z = patternRot;
     bulgeGroup.rotation.z += dt * 0.030;
-
+ 
     stepFilaments(dt);
-
+    for(const o of orbiters) o.g.rotateZ(o.om * dt);
+ 
     // scroll-linked background motion + legibility scrim
     const vh = window.innerHeight;
     const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
     const q = reduced ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll));
     qs += (q - qs) * Math.min(1, dt * 2.5);
     scrim.style.opacity = (0.80 * Math.min(1, window.scrollY / (1.3 * vh))).toFixed(3);
-
+ 
     // inertia + gentle idle drift
     if (!dragging){
       az += vAz; pol = Math.max(0.30, Math.min(1.45, pol + vPol));
@@ -1357,7 +1385,7 @@ void main(){
     applyCamera();
     renderer.render(scene, camera);
   }
-
+ 
   if (reduced){
     // static render; redraw only on interaction
     let raf = null;
