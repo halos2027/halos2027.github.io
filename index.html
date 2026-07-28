@@ -102,8 +102,11 @@
   .chip[data-l="dm"].on{color:var(--dm)}
   .chip[data-l="star"].on{color:var(--star)}
   .chip[data-l="cgm"].on{color:var(--cgm)}
-  @media(max-width:760px){.layers{top:auto;bottom:210px;flex-direction:row;left:20px;right:auto;flex-wrap:wrap}.layers span{display:none}}
- 
+  @media(max-width:760px){
+    .layers{top:74px;bottom:auto;left:16px;right:16px;flex-direction:row;flex-wrap:wrap;gap:6px;justify-content:flex-start}
+    .layers span{display:none}
+    .chip{padding:6px 11px;font-size:.76rem}
+  }
   .scroll-hint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);color:var(--ink-dim);font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;animation:bob 2.6s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
   @media(prefers-reduced-motion:reduce){.scroll-hint{animation:none}}
