@@ -1232,6 +1232,82 @@ void main(){
     addFilamentLayer(curve, {n:110, size:6.8, opacity:0.095, color:0x74e8d6, jitterAmp:5.4, tex:gasTex});  // inner mist
     addFilamentLayer(curve, {n:44,  size:2.6, opacity:0.38,  color:0x9df3e6, jitterAmp:3.8, tex:softDot}); // cool clouds
   }
+
+  // -------------------------------------------------------------------------
+  // Episodic outflows: every 5-15 s a biconical wind launches from the centre
+  // along the disk axis. Metal-enriched (red) gas in the same two-scale style
+  // as the inflows; each particle's brightness is tied to its radius, so the
+  // wind fades away as it reaches the halo. Faded bursts are disposed.
+  // -------------------------------------------------------------------------
+  const windTex = gaussianTexture([255, 210, 190], 0.72);
+  const outflows = [];
+  let nextBurst = 1.5 + 5*R();     // first burst arrives quickly
+  let cgmFac = 1;                  // layer-chip dim factor, applied to wind brightness
+  const OUT = {
+    cone: 0.55,                    // cone half-angle (rad) about the disk axis
+    vMin: 3, vMax: 9,             // radial speeds (units / s)
+    rIn: 12,                       // fade-in complete by this radius
+    rFadeStart: 55,                // fade-out begins here...
+    rKill: 130,                    // ...completes here; burst is then recycled
+  };
+  function spawnOutflowLayer({n, size, opacity, color, tex, spread}){
+    const N = Math.round(n*SC)+8;
+    const pos = new Float32Array(N*3), col = new Float32Array(N*3);
+    const dirs = new Float32Array(N*3), spd = new Float32Array(N), rr = new Float32Array(N);
+    const c = new THREE.Color(color);
+    for(let i=0;i<N;i++){
+      const side = R()<0.5 ? 1 : -1;                       // both cones of the bicone
+      const cosT = 1 - R()*(1 - Math.cos(OUT.cone));       // uniform within the cone
+      const sinT = Math.sqrt(1 - cosT*cosT), ph = R()*TAU;
+      dirs[3*i]   = sinT*Math.cos(ph);
+      dirs[3*i+1] = sinT*Math.sin(ph);
+      dirs[3*i+2] = side*cosT;
+      spd[i] = OUT.vMin + (OUT.vMax-OUT.vMin)*R();
+      rr[i]  = R()*2.0*spread;                             // stagger for depth
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), OUT.rKill + 12);
+    const mat = new THREE.PointsMaterial({size, vertexColors:true, transparent:true, opacity,
+      map:tex, alphaTest:0.003, blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true});
+    const cloud = new THREE.Points(geo, mat); cloud.renderOrder = 0.55;
+    groups.cgm.add(cloud);
+    outflows.push({geo, cloud, dirs, spd, rr, base:c});
+  }
+  function spawnBurst(){
+    spawnOutflowLayer({n:60, size:9.5, opacity:0.055, color:0xd7523c, tex:windTex, spread:2.2}); // outer mist
+    spawnOutflowLayer({n:46, size:5.6, opacity:0.11,  color:0xe86a4a, tex:windTex, spread:1.5}); // inner mist
+    spawnOutflowLayer({n:22, size:2.4, opacity:0.42,  color:0xffa07f, tex:softDot, spread:1.0}); // enriched clouds
+  }
+  function updateOutflows(dt){
+    for(let k=outflows.length-1; k>=0; k--){
+      const o = outflows[k];
+      const p = o.geo.attributes.position.array, cl = o.geo.attributes.color.array;
+      let alive = 0;
+      for(let i=0;i<o.spd.length;i++){
+        o.rr[i] += o.spd[i]*dt;
+        const r = o.rr[i];
+        if (r < OUT.rKill) alive++;
+        p[3*i]   = o.dirs[3*i]*r;
+        p[3*i+1] = o.dirs[3*i+1]*r;
+        p[3*i+2] = o.dirs[3*i+2]*r;
+        // brightness linked to radius: ramp in near the bulge, fade out into the halo
+        const fIn  = Math.min(1, Math.max(0, r/OUT.rIn));
+        const fOut = Math.min(1, Math.max(0, 1 - (r-OUT.rFadeStart)/(OUT.rKill-OUT.rFadeStart)));
+        const f = fIn * fOut*fOut * cgmFac;
+        cl[3*i]=o.base.r*f; cl[3*i+1]=o.base.g*f; cl[3*i+2]=o.base.b*f;
+      }
+      o.geo.attributes.position.needsUpdate = true;
+      o.geo.attributes.color.needsUpdate = true;
+      if (!alive){
+        groups.cgm.remove(o.cloud);
+        o.geo.dispose(); o.cloud.material.dispose();
+        outflows.splice(k,1);
+      }
+    }
+  }
+
   const fv = new THREE.Vector3();
   function stepFilaments(dt){
     for(const f of filaments){
@@ -1268,6 +1344,7 @@ void main(){
       const active = (which==='all') || key===which || key==='gal';
       const f = active ? 1 : dimTo;
       if (key === 'gal') fieldFactor = f;
+      if (key === 'cgm') cgmFac = f;
       g.traverse(o => {
         if(!o.material) return;
         if (o.material.uniforms && o.material.uniforms.uDim) return;   // field stars handled in animate
@@ -1370,6 +1447,11 @@ void main(){
     bulgeGroup.rotation.z += dt * 0.030;
  
     stepFilaments(dt);
+    if (!reduced){
+      nextBurst -= dt;
+      if (nextBurst <= 0){ spawnBurst(); nextBurst = 5 + 10*R(); }   // every 5-15 s
+    }
+    updateOutflows(dt);
     for(const o of orbiters) o.g.rotateZ(o.om * dt);
  
     // scroll-linked background motion + legibility scrim
