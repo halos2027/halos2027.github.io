@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HALOS 2027 — Frontiers in Galactic Haloes</title>
+<title>HALOS 2027 — Frontiers in the Baryonic Halo</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Sans:ital,wght@0,400..600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -70,13 +71,19 @@
   .hero-inner{max-width:var(--max);margin:0 auto;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:26px}
   .hero-copy *{pointer-events:auto}
   .kicker{font-family:"JetBrains Mono",monospace;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:14px}
+  .kicker.below{margin:18px 0 0}
   h1.wordmark{
     font-family:"Bricolage Grotesque",sans-serif;
     font-weight:750;font-size:clamp(3.2rem,9.5vw,7.2rem);
-    line-height:.95;letter-spacing:-.015em;display:flex;align-items:baseline;gap:.02em;
+    line-height:.95;letter-spacing:-.015em;display:flex;flex-direction:column;align-items:flex-start;
   }
+  h1 .pre{
+    font-size:.27em;font-weight:600;letter-spacing:.44em;text-transform:uppercase;
+    color:var(--cgm);margin:0 0 .28em .06em;
+  }
+  h1 .wm-row{display:flex;align-items:baseline;gap:.02em}
   h1 .halo-o{display:inline-block;width:.86em;height:.86em;transform:translateY(.09em)}
-  .hero-sub{margin-top:16px;max-width:34em;color:var(--ink-dim);font-size:clamp(.98rem,1.4vw,1.12rem)}
+  .hero-sub{margin-top:12px;max-width:34em;color:var(--ink-dim);font-size:clamp(.98rem,1.4vw,1.12rem)}
   .hero-sub b{color:var(--ink);font-weight:600}
   .hero-meta{display:flex;flex-direction:column;gap:8px;align-items:flex-end;text-align:right}
   .hero-meta .mono{font-size:.82rem;letter-spacing:.08em;color:var(--ink-dim)}
@@ -256,14 +263,19 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
 .cta-fine{margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:.68rem;
   letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim)}
 
-
+.cta-card-wide {
+    grid-column: 1 / -1;
+}
+.cta-card-wide p {
+    max-width: 72em;
+}
 </style>
 </head>
 <body>
  
 <nav>
   <div class="wrap">
-    <a class="navmark" href="#top">HAL<em>O</em>S 2027</a>
+    <a class="navmark" href="#top"><span style="color:var(--cgm)">Frontiers in Baryonic</span> HAL<em>O</em>S</a>
     <ul>
       <li><a href="#science">Science</a></li>
       <li><a href="#questions">Questions</a></li>
@@ -282,23 +294,24 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
 
   <div class="layers" role="group" aria-label="Highlight halo components">
     <span>drag to rotate · ctrl+scroll / pinch to zoom</span>
-    <button class="chip on" data-l="all"><i></i>Full system</button>
+    <!-- <button class="chip on" data-l="all"><i></i>Full system</button>
     <button class="chip" data-l="dm"><i></i>Dark matter &amp; satellites</button>
     <button class="chip" data-l="star"><i></i>Stellar halo</button>
-    <button class="chip" data-l="cgm"><i></i>Circumgalactic medium</button>
+    <button class="chip" data-l="cgm"><i></i>Circumgalactic medium</button> -->
   </div>
 
   <div class="hero-copy">
     <div class="hero-inner">
       <div>
-        <div class="kicker">An international conference · Chicago · June 2027</div>
-        <h1 class="wordmark">HAL<svg class="halo-o" viewBox="0 0 100 100" aria-label="O"><g fill="none" stroke-linecap="round"><circle cx="50" cy="50" r="30" stroke="#5fe0cf" stroke-width="7"/><path d="M50 4 A46 46 0 0 1 96 50" stroke="#9b8cff" stroke-width="4" opacity=".8"/><path d="M50 96 A46 46 0 0 1 4 50" stroke="#9b8cff" stroke-width="4" opacity=".8"/><path d="M85 15 Q66 26 60 40" stroke="#5fe0cf" stroke-width="4" opacity=".9"/><path d="M15 85 Q34 74 40 60" stroke="#5fe0cf" stroke-width="4" opacity=".9"/><circle cx="50" cy="50" r="9" fill="#f0d6a0" stroke="none"/></g></svg>S 2027</h1>
-        <p class="hero-sub"><b>Frontiers in galactic haloes.</b> Dark matter, stars, and gas at the edges of galaxies. Four days diving into the dynamic and evolving environments within which galaxies live.</p>
+        <h1 class="wordmark"><span class="pre">Frontiers in Baryonic</span><span class="wm-row">HAL<svg class="halo-o" viewBox="0 0 100 100" aria-label="O"><g fill="none" stroke-linecap="round"><circle cx="50" cy="50" r="30" stroke="#5fe0cf" stroke-width="7"/><path d="M50 4 A46 46 0 0 1 96 50" stroke="#9b8cff" stroke-width="4" opacity=".8"/><path d="M50 96 A46 46 0 0 1 4 50" stroke="#9b8cff" stroke-width="4" opacity=".8"/><path d="M85 15 Q66 26 60 40" stroke="#5fe0cf" stroke-width="4" opacity=".9"/><path d="M15 85 Q34 74 40 60" stroke="#5fe0cf" stroke-width="4" opacity=".9"/><circle cx="50" cy="50" r="9" fill="#f0d6a0" stroke="none"/></g></svg>S 2027</span></h1>
+        <div class="kicker below">New Insights into the resolved CGM and faint stellar outskirts</div>
+        <p class="hero-sub"> Understanding the physics of outflows, inflows, and role of the CGM and stellar halo in galaxy evolution, via novel instrumentation, observations, simualations, and computational techniques.</p>
+
       </div>
       <div class="hero-meta">
-        <div class="mono"><b>14–17 June 2027</b> (provisional)</div>
-        <div class="mono">SkAI Institute · 875 N Michigan Ave, 38th fl<br>or Northwestern University <b>· venue TBC</b></div>
-        <div class="mono">~100 participants · abstracts open late 2026</div>
+        <div class="mono"><b>June 7 - 10 2027 · Chicago, USA</b></div>
+        <div class="mono">SkAI Institute · 875 N Michigan Ave</div>
+        <div class="mono">~100 participants · abstracts open January 2027</div>
       </div>
     </div>
   </div>
@@ -306,349 +319,33 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
 </header>
 
 <main>
-  <section id="science">
+  <section id="science" class="cta">
     <div class="wrap">
       <div class="eyebrow">Scientific Rationale</div>
       <h2>The (nearly) invisible Halo</h2>
-      <p class="lede">
-      The "island universes" traced by galaxies' visible light belays a <b>complex, dynamic circumgalactic environment.</b> 
-      Despite the halo's importance in the <b>baryon cycle</b> and <b>galaxy evolution</b>, much of what exists in the halo is <b>nearly invisible.</b>
-      Now, <b>new instrumentation and technologies</b>, <b>state of the art, high resolution simulations</b>, and <b>novel, extensive surveys</b> are for the first time unlocking significant constraints on the nature of the halo.
-      This conferences focuses on bringing subfield experts together to <b>bridge observations, simulations, and statitical methods</b> at the frontier of this challenging but critical topic of study.
+      <p>The Baryonic Halo contains numerous keys to understanding the evolution of galaxies. In gas, the circumgalactic medium (CGM) <b>holds over 50% of a galaxy's baryons</b>, and serves as a processor for <b>inflowing gas</b> and outflowing material from <b>stellar and AGN feedback</b>. Meanwhile, in stars, structures like <b>shells, streams, and tidal bridges</b> can constrain the <b>accretion and merger history</b> of their hosts. </p>
+      <p><br>
+        For many years, these baryonic processes and their tracers have hidden in reaches of the halo — proving challenging to observe due to their <b>low surface brightness</b>, and difficult to simulate due to the <b>many orders of magnitude in scale</b> of the physical processes involved.
+      </p><br>
+      <p>Now, new <b>observational facilities</b>, high resolution <b>simulations</b>, and novel <b>computational methods</b> are in the process of revolutionizing the study of the physical processes driving the evolution of galaxies and their halos. We invite the community pushing the boundaries of this field to join us in Chicago, IL USA in June 2027 to share new results, challenges, and approaches to the constraining of this key component of galaxy evolution.</p>
 
-        <!-- ===== CTA: register + abstracts (drop-in, safe to repeat) ===== -->
-<section class="cta">
+  <section class="cta">
   <div class="wrap">
     <div class="cta-grid">
-      <div class="cta-card">
+       <div class="cta-card cta-card-wide">
         <div class="eyebrow" style="margin-bottom:4px">Join us</div>
-        <h3>Register for HALOS 2027</h3>
-        <p>Five days, a hundred halo people, and a June week in Chicago. Registration covers all sessions, coffee in dangerous quantities, and the conference dinner.</p>
-        <a class="cta-btn solid" href="REGISTRATION_URL_HERE" target="_blank" rel="noopener">Register <span class="arr">→</span></a>
-        <div class="cta-fine">Opens Nov 2026 · Early rate through Apr 2027</div>
+        <h3>More Information Coming Soon!</h3>
+        <p>We will be announcing our SOC, invited and confirmed speakers, and more very soon! We expect abstract submission to open in <b>early-to-mid January 2027.</b> If you would like to express interest and receive an email notification, please fill out the interest form below!</p>
+        <a class="cta-btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLSepe81RD0HzAYzrLmjPbfN5imISWUR7-Z9_CnmUszG8IgPiGg/viewform" target="_blank" rel="noopener">Interest Form <span class="arr">→</span></a>
+        <div class="cta-fine">Check back for more information</div>
       </div>
-      <div class="cta-card">
+      <!-- <div class="cta-card">
         <div class="eyebrow" style="margin-bottom:4px">Contribute</div>
         <h3>Submit an abstract</h3>
-        <p>Talks and posters across all three pillars — dark matter, stellar haloes, and the CGM — and especially the interfaces between them.</p>
-        <a class="cta-btn solid" href="ABSTRACT_URL_HERE" target="_blank" rel="noopener">Submit an abstract <span class="arr">→</span></a>
-        <div class="cta-fine">Deadline 13 Feb 2027 · Provisional</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-      </p>
-
-      <div class="pillar dm" id="p-dm">
-        <div class="tag">Pillar 01</div>
-        <h3>Dark matter haloes &amp; satellite populations</h3>
-        <p class="desc">
-          The dark matter suffusing halos remains frustratingly invisible, but the <b>baryonic tracers</b> of the halo (e.g., satellites, globular clusters, and stellar streams), while faint or challenging to identify, are increasingly being robustly characterized. 
-          These observations, along with new simulations, are allowing for new constraints on key properties of dark matter halos and satellite populations:
-        </p>
-        <div class="cols">
-          <ul class="topics">
-            <li>Halo shapes, orientations &amp; the stellar streams that measure them</li>
-            <li>Stream gaps and perturbations as probes of starless subhaloes</li>
-            <li>The subhalo mass function as a dark matter experiment (CDM / SIDM / WDM / fuzzy DM)</li>
-            <li>Satellite infall, ram-pressure stripping &amp; quenching timescales</li>
-            <li>Planes of satellites, group infall &amp; anisotropic accretion</li>
-            <li>Rubin-era dwarf discovery and completeness at the faint limit</li>
-          </ul>
-          <div class="qbox">
-            <h4>Open questions</h4>
-            <ul>
-              <li>How lumpy is dark matter below the mass where stars form? </li>
-              <li>Can stellar streams probe dark matter substructure?</li>
-              <li>What shapes do real haloes take — and does ΛCDM agree?</li>
-              <li>When, where, and how fast do satellites quench?</li>
-              <li>What drives the scatter in the stellar mass-halo mass relation at low stellar mass?</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="pillar star" id="p-star">
-        <div class="tag">Pillar 02</div>
-        <h3>Stellar haloes &amp; the buildup of galaxies</h3>
-        <p class="desc">
-          Studies of the Milky Way have unveiled dozens of arcing streams of stars. These streams serve as probes of the potential and substructure, and archeological evidence of past accretion. 
-          Streams and debris in <b>other galaxies</b> will vastly improve these constraints and allow for holistic views we can't obtain from within the MW: but such measurements require <b>extreme low surface brightness</b> capabilities when targeting other galaxies.
-        </p>
-        <div class="cols">
-          <ul class="topics">
-            <li>Galactic archaeology: chemodynamical tagging of accretion events</li>
-            <li>In-situ vs. accreted haloes — and why the ratio varies so much</li>
-            <li>Deep LSB imaging of external haloes, from Dragonfly to Rubin to Roman</li>
-            <li>Tidal features as a census of minor mergers</li>
-            <li>Disrupted dwarfs, globular cluster streams &amp; the smallest building blocks</li>
-            <li>Connecting Milky Way detail to population statistics</li>
-          </ul>
-          <div class="qbox">
-            <h4>Open questions</h4>
-            <ul>
-              <li>Can a stellar halo yield its galaxy's full merger tree?</li>
-              <li>What drives the observed diversity in stellar haloes?</li>
-              <li>Where did the stars of the first accreted galaxies end up?</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="pillar cgm" id="p-cgm">
-        <div class="tag">Pillar 03<span class="flag">Flagship theme</span></div>
-        <h3>The circumgalactic medium</h3>
-        <p class="desc">
-          The circumgalactic medium (CGM) hosts as much as half of a galaxy's baryons, constantly evolving in a cycle of accretion from the cosmic web, heating and cooling, turbulence and mixing.
-          Gas in the CGM can precipitate down into galaxies to fuel star formation, and galactic feedback drives enriched gas back into the CGM to join the turbulent processes ongoing there.
-          Understanding the CGM and its influence on galaxy evolution is a <b>multiphase challenge</b>, with gas spanning a wide range in temperature and density, at surface brightnesses never before obtained for large samples.
-        </p>
-        <div class="cols">
-          <ul class="topics">
-            <li>The baryon cycle: accretion, winds, fountains &amp; recycling</li>
-            <li>Multiphase structure — cold cloud survival, precipitation &amp; thermal instability</li>
-            <li>The emission-mapping frontier: wide-field IFUs, narrowband &amp; LSB techniques</li>
-            <li>Absorption surveys &amp; tomography of the cool and warm-hot phases</li>
-            <li>Cosmic rays, magnetic fields &amp; non-thermal pressure support</li>
-            <li>Fast radio bursts as a baryon census of halo gas</li>
-            <li>The CGM–quenching connection across mass and environment</li>
-            <li>The resolution frontier: CGM-refinement simulations vs. cloud-scale physics</li>
-          </ul>
-          <div class="qbox">
-            <h4>Open questions</h4>
-            <ul>
-              <li>Where are the baryons — and in what phase?</li>
-              <li>How does gas actually get into galaxies?</li>
-              <li>What keeps cold clouds alive in hot haloes?</li>
-              <li>Do cosmic rays restructure galactic atmospheres?</li>
-              <li>How does the CGM evolve from high to low redshift?</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- <section id="questions">
-    <div class="wrap">
-      <div class="eyebrow">The interfaces</div>
-      <h2>No phase of the halo evolves in isolation.</h2>
-      <p class="lede">The most interesting problems live at the seams.</p>
-      <div class="weave">
-        <div class="cell c1"><span class="mono">DM ⟷ CGM</span><p>Satellites quench in the medium they fall through. The CGM's density and structure set stripping efficiencies; stripped gas, in turn, seeds the CGM with cool clouds.</p></div>
-        <div class="cell c2"><span class="mono">Stars ⟷ DM</span><p>Stellar streams are the sharpest rulers we have for halo shape and substructure — the stellar halo is a dark matter experiment in progress.</p></div>
-        <div class="cell c3"><span class="mono">Stars ⟷ CGM</span><p>The same accretion events that build stellar haloes deliver gas, angular momentum, and metals to the CGM. Debris and atmosphere share a history.</p></div>
-        <div class="cell c4"><span class="mono">All three</span><p>Anisotropic cosmic accretion sets the geometry of everything: satellite planes, stream orbits, and the filamentary feeding of halo gas.</p></div>
-      </div>
-    </div>
-  </section> -->
-
-  <section id="threads">
-    <div class="wrap">
-      <div class="eyebrow">The throughlines</div>
-      <h2>Bridging methods.</h2>
-      <p class="lede">Each pillar confronts its <b>simulations</b>, its <b>observational frontier</b>, and what <b>machine learning and AI</b> can accelerate</p>
-      <div class="rails">
-        <div class="rail"><span class="mono">Frontier · Simulations</span><h3>Resolving the halo</h3><p>From cosmological volumes to cloud-crushing boxes: CGM-refinement schemes, MHD and cosmic-ray physics, satellite stripping at survivable resolution, the CGM is being simulated with unprecedented resolution and new physics.</p></div>
-        <div class="rail"><span class="mono">Frontier · Observations</span><h3>The deep, wide sky</h3><p>Surveys from Rubin and Roman, deep emission line maps from KCWI, MUSE, and MOTHRA --- gas in the CGM is increasingly targetable in emission.</p></div>
-        <div class="rail"><span class="mono">Frontier · ML &amp; AI</span><h3>Inference at scale</h3><p>Simulation-based inference for streams and satellites, emulators bridging theory and survey volumes, foundation models for spectra and imaging. Machine learning methods and AI hold key accelerations for science with massive, multidimensional data.</p></div>
-      </div>
-    </div>
-  </section>
-
-   <section id="people">
-    <div class="wrap">
-      <div class="eyebrow">People</div>
-      <h2>Keynotes &amp; invited speakers </h2>
- 
-      <h3 class="ppl-h">Keynote talks</h3>
-      <!-- TO FILL A KEYNOTE: keep the pillar class (dm / star / cgm / syn) for the color coding,
-           add class "filled" to switch the border from dashed to solid, replace the name /
-           affiliation / talk title, and (optionally) drop <img src="..." alt=""> inside .k-ava. -->
-      <div class="keynotes">
-        <div class="kcard dm filled">
-  <div class="k-ava" aria-hidden="true"><img src="./img/pieter.png" alt=""></div>
-  <div class="k-tag">Keynote · Day 1 · Dark matter</div>
-  <div class="k-name">Pieter van Dokkum</div>
-  <div class="k-affil">CIERA / Northwestern</div>
-  <div class="k-title">Talk title to be announced</div>
-</div>
-        <div class="kcard star">
-          <div class="k-ava" aria-hidden="true"></div>
-          <div class="k-tag">Keynote · Day 2 · Stellar haloes</div>
-          <div class="k-name">Speaker TBA</div>
-          <div class="k-affil">Institution</div>
-          <div class="k-title">Talk title to be announced</div>
-        </div>
-        <div class="kcard cgm">
-          <div class="k-ava" aria-hidden="true"></div>
-          <div class="k-tag">Keynote · Day 3 · CGM census</div>
-          <div class="k-name">Speaker TBA</div>
-          <div class="k-affil">Institution</div>
-          <div class="k-title">Talk title to be announced</div>
-        </div>
-        <div class="kcard cgm">
-          <div class="k-ava" aria-hidden="true"></div>
-          <div class="k-tag">Keynote · Day 4 · CGM physics</div>
-          <div class="k-name">Speaker TBA</div>
-          <div class="k-affil">Institution</div>
-          <div class="k-title">Talk title to be announced</div>
-        </div>
-      </div>
- 
-      <h3 class="ppl-h">Invited speakers</h3>
-      <p class="ppl-note">Invited reviews frame each session. Duplicate cards as the list grows.</p>
-      <!-- TO FILL AN INVITED SPEAKER: add class "filled", replace name + affiliation,
-           optionally drop <img src="..." alt=""> inside .i-ava. Copy-paste a card to add more. -->
-      <div class="invited">
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-      </div>
- 
-      <h3 class="ppl-h">Committees</h3>
-      <!-- TO FILL: replace "Member TBA — Institution"; the .role tag on the right is optional
-           (chair / co-chair / etc). Add or remove <li> rows freely. -->
-      <div class="comms">
-        <div class="ccard">
-          <span class="mono">Scientific Organizing Committee</span>
-          <h4>SOC</h4>
-          <ul>
-            <li><span><b>Imad Pasha</b> — CIERA / DRAGONFLY FRO</span><span class="role">chair</span></li>
-            <li><span><b>TBD</b> — TBD</span><span class="role">co-chair</span></li>
-            <li><span><b>TBD</b> — TBD</span></li>
-            <li><span><b>TBD</b> — TBD</span></li>
-            <li><span><b>Member TBA</b> — Institution</span></li>
-            <li><span><b>Member TBA</b> — Institution</span></li>
-          </ul>
-        </div>
-        <div class="ccard">
-          <span class="mono">Local Organizing Committee</span>
-          <h4>LOC</h4>
-          <ul>
-            <li><span><b>Chloe Neufeld</b> — CIERA </span><span class="role">chair</span></li>
-            <li><span><b>Juliette Hilhorst</b> — YALE UNIVERSITY</span></li>
-            <li><span><b>Imad Pasha</b> — CIERA / DRAGONFLY FRO</span></li>
-            <li><span><b>Jonah Gannon</b> — DUNLAP INSTITUTE</span></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- <section id="program">
-    <div class="wrap">
-      <div class="eyebrow">Program at a glance</div>
-      <h2>Over four days, we will explore all galactic halos have to offer.</h2>
-      <p class="lede">Dark matter, halo stars and satellites, and the gas filling the virial radius.</p>
-      <div class="days">
-        <div class="day dm"><div class="bar"></div><div class="dnum">Day 1 · Mon</div><h3>Dark Matter haloes &amp; satellites</h3><p>Halo shapes, streams as substructure probes, satellite mass functions, infall &amp; quenching.</p></div>
-        <div class="day star"><div class="bar"></div><div class="dnum">Day 2 · Tue</div><h3>Stellar haloes &amp; buildup</h3><p>Archaeology, LSB imaging of external haloes, accretion histories, the in-situ/accreted divide.</p></div>
-        <div class="day cgm"><div class="bar"></div><div class="dnum">Day 3 · Wed</div><h3>CGM I — the census</h3><p>Baryon budgets, multiphase structure, absorption &amp; emission surveys, FRB dispersion measures.</p></div>
-        <div class="day cgm"><div class="bar"></div><div class="dnum">Day 4 · Thu</div><h3>CGM II — the physics</h3><p>Cold cloud survival, precipitation, cosmic rays &amp; magnetic fields, the resolution frontier, quenching.</p></div>
-        <div class="day syn"><div class="bar"></div><div class="dnum">Day 5 · Fri</div><h3>The connected halo</h3><p>Interfaces between all three pillars, ML frontiers, next-generation facilities, synthesis debate.</p></div>
-      </div>
-      <p class="fmt"><span class="mono" style="color:var(--cgm);font-size:.75rem;letter-spacing:.16em;">FORMAT&nbsp;&nbsp;</span> Invited reviews to frame each frontier, contributed talks, poster sessions with lightning intros, and generous unstructured discussion blocks — the meeting is sized (~100 people) so that conversations actually happen.</p>
-    </div>
-  </section> -->
-
-  <section id="venue">
-    <div class="wrap">
-      <div class="eyebrow">Venue &amp; travel</div>
-      <h2>Chicago IL, USA.</h2>
-      <div class="venue-grid">
-        <div>
-          <div class="vcard">
-            <span class="mono">Candidate venue · A</span>
-            <h3>SkAI Institute — 875 N Michigan Ave, 38th floor</h3>
-            <p>The NSF–Simons AI Institute for the Sky, high in the former John Hancock Center. Conference sessions with the city and Lake Michigan a thousand feet below — an apt altitude for halo science, and a short walk from the Magnificent Mile, hotels, and the lakefront.</p>
-          </div>
-          <div class="vcard">
-            <span class="mono">Candidate venue · B</span>
-            <h3>Northwestern University — Evanston campus</h3>
-            <p>CIERA's home campus on the Lake Michigan shore, 30 minutes north of downtown by train. Full university facilities, summer housing options, and a quieter lakeside setting.</p>
-          </div>
-          <p class="note">Final venue will be confirmed with registration. Both are served by O'Hare (ORD) and Midway (MDW); the CTA runs from both airports to downtown and Evanston.</p>
-        </div>
-        <div class="skyline" aria-hidden="true">
-          <svg viewBox="0 0 520 360">
-            <defs>
-              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#0a0f1f"/><stop offset="1" stop-color="#101a33"/>
-              </linearGradient>
-            </defs>
-            <rect width="520" height="360" fill="url(#sky)"/>
-            <circle cx="430" cy="70" r="26" fill="none" stroke="#5fe0cf" stroke-width="1.5" opacity=".7"/>
-            <circle cx="430" cy="70" r="40" fill="none" stroke="#9b8cff" stroke-width="1" opacity=".35" stroke-dasharray="3 5"/>
-            <circle cx="430" cy="70" r="6" fill="#f0d6a0"/>
-            <g fill="#0d1428" stroke="#25304d" stroke-width="1">
-              <rect x="40" y="200" width="42" height="160"/>
-              <rect x="95" y="170" width="34" height="190"/>
-              <rect x="140" y="220" width="50" height="140"/>
-              <rect x="205" y="150" width="38" height="210"/>
-              <rect x="330" y="185" width="44" height="175"/>
-              <rect x="388" y="215" width="30" height="145"/>
-              <rect x="430" y="175" width="46" height="185"/>
-            </g>
-            <!-- Hancock -->
-            <g>
-              <path d="M258 360 L268 120 L302 120 L312 360 Z" fill="#0d1428" stroke="#3b4a73" stroke-width="1.4"/>
-              <line x1="268" y1="120" x2="264" y2="92" stroke="#3b4a73" stroke-width="1.4"/>
-              <line x1="302" y1="120" x2="306" y2="92" stroke="#3b4a73" stroke-width="1.4"/>
-              <path d="M262 200 L308 165 M260 250 L310 210 M259 300 L311 258" stroke="#25304d" stroke-width="1"/>
-              <rect x="262" y="206" width="46" height="7" fill="#5fe0cf" opacity=".85"/>
-            </g>
-            <text x="262" y="196" font-family="JetBrains Mono,monospace" font-size="9" fill="#5fe0cf" letter-spacing="2">FL 38 · SKAI</text>
-            <g stroke="#f0d6a0" stroke-width="1" opacity=".5">
-              <circle cx="70" cy="60" r="1" fill="#f0d6a0"/><circle cx="150" cy="40" r="1" fill="#f0d6a0"/>
-              <circle cx="210" cy="80" r="1" fill="#f0d6a0"/><circle cx="360" cy="45" r="1" fill="#f0d6a0"/>
-              <circle cx="490" cy="120" r="1" fill="#f0d6a0"/><circle cx="30" cy="130" r="1" fill="#f0d6a0"/>
-            </g>
-            <text x="18" y="342" font-family="JetBrains Mono,monospace" font-size="9" fill="#4a5878" letter-spacing="2">CHICAGO · 41.9°N — DARK SKIES NOT INCLUDED</text>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="dates">
-    <div class="wrap">
-      <div class="eyebrow">Key dates</div>
-      <h2>Preliminary Dates.</h2>
-      <div class="dates">
-        <div class="dline"><span class="mono">Nov 2026</span><span class="what">Registration &amp; abstract submission open</span><span class="st">Provisional</span></div>
-        <div class="dline"><span class="mono">13 Feb 2027</span><span class="what">Abstract deadline</span><span class="st">Provisional</span></div>
-        <div class="dline"><span class="mono">Apr 2027</span><span class="what">Program announced · early registration closes</span><span class="st">Provisional</span></div>
-        <div class="dline"><span class="mono">14 May 2027</span><span class="what">Registration closes</span><span class="st">Provisional</span></div>
-        <div class="dline"><span class="mono">14–18 Jun 2027</span><span class="what">HALOS 2027, Chicago</span><span class="st">Hold the week</span></div>
-      </div>
-      <p class="note">All dates provisional until registration opens. A limited number of travel grants for early-career researchers is anticipated — details with the first announcement.</p>
-    </div>
-  </section>
-  <!-- ===== CTA: register + abstracts (drop-in, safe to repeat) ===== -->
-<section class="cta">
-  <div class="wrap">
-    <div class="cta-grid">
-      <div class="cta-card">
-        <div class="eyebrow" style="margin-bottom:4px">Join us</div>
-        <h3>Register for HALOS 2027</h3>
-        <p>Five days, a hundred halo people, and a June week in Chicago. Registration covers all sessions, coffee in dangerous quantities, and the conference dinner.</p>
-        <a class="cta-btn solid" href="REGISTRATION_URL_HERE" target="_blank" rel="noopener">Register <span class="arr">→</span></a>
-        <div class="cta-fine">Opens Nov 2026 · Early rate through Apr 2027</div>
-      </div>
-      <div class="cta-card">
-        <div class="eyebrow" style="margin-bottom:4px">Contribute</div>
-        <h3>Submit an abstract</h3>
-        <p>Talks and posters across all three pillars — dark matter, stellar haloes, and the CGM — and especially the interfaces between them.</p>
-        <a class="cta-btn solid" href="ABSTRACT_URL_HERE" target="_blank" rel="noopener">Submit an abstract <span class="arr">→</span></a>
-        <div class="cta-fine">Deadline 13 Feb 2027 · Provisional</div>
-      </div>
+        <p>We are inviting contributed talks and posters in our core science pillars (see below).</p>
+        <!-- <a class="cta-btn solid" href="ABSTRACT_URL_HERE" target="_blank" rel="noopener">Submit an abstract <span class="arr">→</span></a> -->
+        <!--<div class="cta-fine">Deadline 13 Feb 2027 · Provisional</div> -->
+      <!-- </div> -->
     </div>
   </div>
 </section>
@@ -658,11 +355,11 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
   <div class="wrap">
     <div>
       <div class="fm">HAL<span style="color:var(--cgm)">O</span>S 2027</div>
-      <div>Frontiers in Galactic Haloes · Chicago · June 2027</div>
-      <div style="margin-top:6px" class="mono" style="font-size:.8rem">contact: halos2027@example.edu</div>
+      <div>Frontiers in Baryonic Halos · Chicago · June 2027</div>
+      <div style="margin-top:6px" class="mono" style="font-size:.8rem">contact: baryonichalos2027@gmail.com</div>
     </div>
     <div>
-      <div>Scientific &amp; Local Organizing Committees — TBA</div>
+      <div>Scientific &amp; Local and Scientific Organizing Committees TBA</div>
       <div style="margin-top:6px">Code of conduct applies to all conference spaces.</div>
     </div>
   </div>
@@ -1459,7 +1156,7 @@ void main(){
     const maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
     const q = reduced ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll));
     qs += (q - qs) * Math.min(1, dt * 2.5);
-    scrim.style.opacity = (0.80 * Math.min(1, window.scrollY / (1.3 * vh))).toFixed(3);
+    scrim.style.opacity = (0.95 * Math.min(1, window.scrollY / (1.3 * vh))).toFixed(3);
  
     // inertia + gentle idle drift
     if (!dragging){
