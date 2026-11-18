@@ -204,7 +204,7 @@
   /* people */
   .ppl-h{font-family:"Bricolage Grotesque",sans-serif;font-size:1.3rem;font-weight:650;margin:60px 0 6px}
   .ppl-note{color:var(--ink-dim);font-size:.88rem;margin-bottom:22px}
-  .keynotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+  .keynotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:14px}
   .kcard{border:1px dashed var(--line);border-radius:12px;padding:22px;background:rgba(10,15,31,.5);display:flex;flex-direction:column;gap:8px}
   .kcard.filled{border-style:solid}
   .k-ava{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;border:1px dashed var(--ink-dim);position:relative;overflow:hidden;margin-bottom:4px}
@@ -335,7 +335,7 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
        <div class="cta-card cta-card-wide">
         <div class="eyebrow" style="margin-bottom:4px">Join us</div>
         <h3>More Information Coming Soon!</h3>
-        <p>We will be announcing confirmed invited speakers and deadlines/timelines very soon! We expect to open abstract submission soon, with a deadline in <b>early-to-mid January 2027.</b> If you would like to express interest and receive an email notification with reminders about key dates, please fill out the interest form below!</p>
+        <p>We will be announcing our SOC, invited and confirmed speakers, and more very soon! We expect abstract submission to open in <b>early-to-mid January 2027.</b> If you would like to express interest and receive an email notification, please fill out the interest form below!</p>
         <a class="cta-btn solid" href="https://docs.google.com/forms/d/e/1FAIpQLSepe81RD0HzAYzrLmjPbfN5imISWUR7-Z9_CnmUszG8IgPiGg/viewform" target="_blank" rel="noopener">Interest Form <span class="arr">→</span></a>
         <div class="cta-fine">Check back for more information</div>
       </div>
@@ -349,89 +349,6 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
     </div>
   </div>
 </section>
-<section id="people">
-    <div class="wrap">
-      <div class="eyebrow">People</div>
-      <h2>Organizing Committees </h2>
-      <h3 class="ppl-h">Scientific Organizing Committee</h3>
-            <p>The SOC comprises an expert panel of invited scientists who will help drive the scientific program and present at the conference</p>
-
-      <!-- TO FILL A KEYNOTE: keep the pillar class (dm / star / cgm / syn) for the color coding,
-           add class "filled" to switch the border from dashed to solid, replace the name /
-           affiliation / talk title, and (optionally) drop <img src="..." alt=""> inside .k-ava. -->
-      <div class="keynotes">
-        <div class="kcard dm filled">
-  <div class="k-ava" aria-hidden="true"><img src="./img/nikki-nielsen.jpg" alt=""></div>
-          <div class="k-tag">observations · CGM · Baryon Cycle · Emission Mapping</div>
-          <div class="k-name">Nikole Nielsen</div>
-          <div class="k-affil">University of Oklahoma</div>
-          <!-- <div class="k-title">Talk title to be announced</div> -->
-        </div>
-        <div class="kcard star">
-  <div class="k-ava" aria-hidden="true"><img src="./img/Claude-andre.jpg" alt=""></div>
-          <div class="k-tag">theory · simulations · feedback · multi-scale</div>
-          <div class="k-name">Claude-André Faucher-Giguère</div>
-          <div class="k-affil">CIERA / Northwestern / SkAI</div>
-          <!-- <div class="k-title">Talk title to be announced</div> -->
-        </div>
-        <div class="kcard dm filled">
-  <div class="k-ava" aria-hidden="true"><img src="./img/pieter.png" alt=""></div>
-  <div class="k-tag">observations · LSB imaging and spectroscopy · stellar halos</div>
-  <div class="k-name">Pieter van Dokkum</div>
-  <div class="k-affil">Dragonfly FRO / CIERA / Northwestern</div>
-  <!-- <div class="k-title">Talk title to be announced</div> -->
-</div>
-        <div class="kcard star">
-  <div class="k-ava" aria-hidden="true"><img src="./img/2023-Tjitske-Starkenburg-768x768.jpg" alt=""></div>
-          <div class="k-tag">theory · galactic dynamics · stellar halos and streams </div>
-          <div class="k-name">Tjitske Starkenburg</div>
-          <div class="k-affil">CIERA / Northwestern / SkAI</div>
-          <!-- <div class="k-title">Talk title to be announced</div> -->
-        </div>
-        
-        <div class="kcard dm filled">
-  <div class="k-ava" aria-hidden="true"><img src="./img/cropped-HChen_round.001.jpeg" alt=""></div>
-          <div class="k-tag">observations· CGM · Baryon Cycle · dwarf galaxies  </div>
-          <div class="k-name">Hsiao-Wen Chen</div>
-          <div class="k-affil">UChicago / KICP / SkAI</div>
-          <!-- <div class="k-title">Talk title to be announced</div> -->
-        </div>
-      </div>
-
-      <h3 class="ppl-h">Local Organizing Committee</h3>
-        <div class="ccard">
-          <!-- <span class="mono">Local Organizing Committee</span> -->
-          <ul>
-            <li><span><b>Imad Pasha</b> — CIERA / DRAGONFLY FRO </span></li>
-            <li><span><b>Juliette Hilhorst</b> — YALE UNIVERSITY</span></li>
-            <li><span><b>Chloe Neufeld</b> — YALE UNIVERSITY / CIERA</span></li>
-            <li><span><b>Jonah Gannon</b> — DUNLAP DEPT OF ASTRONOMY, U TORONTO</span></li>
-            <li><span><b>Connor Jennings</b> — YALE UNIVERSITY</span></li>
-            <li><span><b>Ava Polzin</b> — DUNLAP INSTITUTE</span></li>
-          </ul>
-        </div>
-
-      <h3 class="ppl-h">Invited speakers</h3>
-      <p class="ppl-note">We are currently beginning the process of inviting speakers. Please check back at a later time for the full list of invited/accepted speakers</p>
-      <!-- TO FILL AN INVITED SPEAKER: add class "filled", replace name + affiliation,
-           optionally drop <img src="..." alt=""> inside .i-ava. Copy-paste a card to add more. -->
-      <div class="invited">
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-        <div class="icard"><div class="i-ava" aria-hidden="true"></div><div><div class="i-name">Speaker TBA</div><div class="i-affil">Institution</div></div></div>
-      </div>
-
-      </div>
-      </div>
-    </div>
-    
-  </section>
-  
 </main>
 
 <footer>
@@ -442,7 +359,7 @@ section.cta{padding:clamp(48px,7vh,84px) 0}
       <div style="margin-top:6px" class="mono" style="font-size:.8rem">contact: baryonichalos2027@gmail.com</div>
     </div>
     <div>
-      <div>Invited Speakers to be announced</div>
+      <div>Scientific and Local Organizing Committees TBA</div>
       <div style="margin-top:6px">Code of conduct applies to all conference spaces.</div>
     </div>
   </div>
